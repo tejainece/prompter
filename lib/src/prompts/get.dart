@@ -98,7 +98,7 @@ Future<T> get<T>(
       } else {
         stdout.write("\x07");
       }
-    } else if (data.first == 10) {
+    } else if (data.first == asciiEnter) {
       final error = render();
       if (error == null) {
         completer.complete();

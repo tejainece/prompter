@@ -6,93 +6,10 @@ import 'dart:convert';
 
 const asciiEscape = 27;
 const asciiDel = 127;
-
-/*
-class LineRenderer {
-  String _content = "";
-
-  int _curPos = 0;
-
-  Point<int> _start;
-
-  LineRenderer([Point<int> start]) : _start = start;
-
-  void setContent(String content, int cursorPos) {
-    _content = content;
-    _curPos = cursorPos;
-  }
-
-  Timer _timer;
-
-  int _cursorTime = 0;
-
-  void start() {
-    stop();
-    _cursorTime = 0;
-    _timer = Timer.periodic(Duration(milliseconds: 100), (_) {
-      _cursorTime++;
-      if (_cursorTime == 12) _cursorTime = 0;
-      render();
-    });
-  }
-
-  void stop() {
-    if (_timer != null) {
-      _timer.cancel();
-    }
-    _timer = null;
-  }
-
-  void render({bool showCursor = true}) async {
-    stdout.write('\x1b[${_start.y};${_start.x}f');
-    stdout.write('\x1b[2K\x1b[J');
-    for (int i = 0; i < _content.runes.length; i++) {
-      if (i == _curPos && _cursorTime > 2) {
-        stdout.write("\u2588");
-      } else {
-        stdout.add(systemEncoding
-            .encode(String.fromCharCode(_content.runes.elementAt(i))));
-      }
-    }
-    if (_curPos == _content.length) {
-      if (_cursorTime > 2) {
-        stdout.write("\u2588");
-      }
-    }
-  }
-}
-
-class MultilineRenderer {
-  final List<LineRenderer> renderers;
-
-  MultilineRenderer(this.renderers);
-
-  void setup() {
-    for (int i = 0; i < renderers.length - 1; i++) {
-      stdout.write('\r\n');
-    }
-  }
-
-  void render() {
-    // Move up
-    for (int i = 0; i < renderers.length; i++) {
-      stdout.write('\x1b[A');
-    }
-
-    for (LineRenderer renderer in renderers) {
-      stdout.write('\x1b[B');
-      renderer.render(showCursor: false);
-    }
-  }
-
-  void reset() {
-    // Delete lines
-    for (int i = 0; i < renderers.length - 1; i++) {
-      stdout.write('\x1b[2K\x1b[A');
-    }
-  }
-}
- */
+const asciiEnter = 10;
+const asciiF = 70;
+const asciif = 102;
+const asciiSpace = 32;
 
 class TermBuffer {
   List<String> _lines = [];

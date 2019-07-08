@@ -5,40 +5,59 @@ import 'package:prompter/prompter.dart';
 import '../line_mode.dart';
 import '../pager.dart';
 
-typedef SelectItemTemplate = String Function(
-    int index, String option, bool selected);
+typedef MultiSelectItemTemplate = String Function(
+    int index, String option, bool selected, bool active);
 
-String defaultSelectItemTemplate(int index, String option, bool selected) {
+String defaultMultiSelectItemTemplate(
+    int index, String option, bool selected, bool active) {
+  final sb = StringBuffer();
+
+  if (active) {
+    sb.write('>');
+  } else {
+    sb.write(' ');
+  }
+
+  sb.write(' ');
+
   if (selected) {
     // TODO
-    return '> $option';
+    sb.write('[X] $option');
   } else {
-    return '  $option';
+    sb.write('[ ] $option');
   }
+
+  return sb.toString();
 }
 
-Future<String> select(List<String> options,
+Future<List<String>> multiSelect(List<String> options,
     {String question,
     @required String name,
-    int selected = 0,
-    SelectItemTemplate itemTemplate = defaultSelectItemTemplate,
+    Set<int> selected,
+    MultiSelectItemTemplate itemTemplate = defaultMultiSelectItemTemplate,
     SuccessTemplate<String> success = successTemplate}) async {
-  final index = await selectIndex(options,
+  final index = await multiSelectIndex(options,
       question: question,
       name: name,
       selected: selected,
       itemTemplate: itemTemplate,
       success: success);
-  return options[index];
+  return index.map((i) => options[i]).toList();
 }
 
-Future<int> selectIndex(List<String> options,
+Future<Set<int>> multiSelectIndex(List<String> options,
     {String question,
     @required String name,
-    int selected = 0,
+    Set<int> selected,
     int itemsPerPage = 5,
-    SelectItemTemplate itemTemplate = defaultSelectItemTemplate,
+    MultiSelectItemTemplate itemTemplate = defaultMultiSelectItemTemplate,
     SuccessTemplate<String> success = successTemplate}) async {
+  if (selected != null) {
+    selected = selected.toSet();
+  } else {
+    selected = {};
+  }
+  int active = 0;
   question ??= name;
   final pager = Pager(options, itemsPerPage: itemsPerPage);
 
@@ -73,7 +92,7 @@ Future<int> selectIndex(List<String> options,
         }
         content += ' ';
       }
-      content += itemTemplate(i, options[i], selected == i);
+      content += itemTemplate(i, options[i], selected.contains(i), active == i);
       lines.add(content);
     }
     buffer.setContent(lines);
@@ -90,23 +109,23 @@ Future<int> selectIndex(List<String> options,
     final chars = systemEncoding.decode(data);
     if (data.first == asciiEscape) {
       if (chars == "\x1b[A") {
-        if (selected > 0) {
-          selected--;
+        if (active > 0) {
+          active--;
         } else {
-          selected = options.length - 1;
+          active = options.length - 1;
         }
-        pager.moveToPageContainingIndex(selected);
+        pager.moveToPageContainingIndex(active);
       } else if (chars == "\x1b[B") {
-        if (selected < options.length - 1) {
-          selected++;
+        if (active < options.length - 1) {
+          active++;
         } else {
-          selected = 0;
+          active = 0;
         }
-        pager.moveToPageContainingIndex(selected);
+        pager.moveToPageContainingIndex(active);
       } else if (chars == "\x1b[5~") {
         if (pager.hasPreviousPage) {
           pager.goToPreviousPage();
-          selected = pager.lastIndexOfCurrentPage;
+          active = pager.lastIndexOfCurrentPage;
         } else {
           shouldRender = false;
           stdout.write("\x07");
@@ -114,7 +133,7 @@ Future<int> selectIndex(List<String> options,
       } else if (chars == "\x1b[6~") {
         if (pager.hasNextPage) {
           pager.goToNextPage();
-          selected = pager.startIndexOfCurrentPage;
+          active = pager.startIndexOfCurrentPage;
         } else {
           shouldRender = false;
           stdout.write("\x07");
@@ -125,9 +144,15 @@ Future<int> selectIndex(List<String> options,
     } else if (data.first == asciiEnter) {
       completer.complete();
       return;
+    } else if (data.first == asciiSpace) {
+      if (selected.contains(active)) {
+        selected.remove(active);
+      } else {
+        selected.add(active);
+      }
     } else if (data.first == asciif || data.first == asciiF) {
       // TODO filter mode
-    }  else {
+    } else {
       shouldRender = false;
       // stdout.write(data);
     }
@@ -140,7 +165,9 @@ Future<int> selectIndex(List<String> options,
   buffer.stop();
 
   {
-    buffer.setContent([success(name, options[selected])]);
+    // TODO multiSelect success template
+    buffer.setContent(
+        [success(name, selected.map((i) => options[i]).toString())]);
     buffer.render();
   }
 
