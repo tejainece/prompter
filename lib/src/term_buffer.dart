@@ -20,8 +20,6 @@ class TermBuffer {
 
   XTermOut xterm = XTermOut();
 
-  Timer _timer;
-
   TermBuffer();
 
   void setContent(List<String> lines, {Point<int> cursor}) {
@@ -29,49 +27,63 @@ class TermBuffer {
     _curPos = cursor;
   }
 
-  int _milliseconds = 0;
+  Completer _rendering;
 
-  int get _seconds => _milliseconds ~/ 1000;
-
-  Future<void> start() async {
+  Future<void> init() async {
     _startingPos = await cursorPosition;
-    stop();
-    _timer = Timer.periodic(Duration(milliseconds: 100), (_) {
-      _milliseconds += 100;
-      render();
-    });
   }
 
-  void stop() {
-    if (_timer != null) {
-      _timer.cancel();
+  int _prevHeight;
+
+  Future<void> render() async {
+    while (_rendering != null) {
+      await _rendering.future;
     }
-    _milliseconds = 0;
-    _timer = null;
-  }
+    _rendering = Completer();
 
-  void render() {
-    xterm.moveTo(_startingPos);
-    xterm.moveToColStart();
-    xterm.clearCurrentLine();
-    xterm.eraseLinesBelow();
+    var pos = await cursorPosition;
+
+    // xterm.moveTo(_startingPos);
+    // xterm.moveToColStart();
+
+    while (pos.y > _startingPos.y) {
+      // xterm.moveTo(_startingPos);
+      // xterm.moveToColStart();
+      // xterm.eraseLinesBelow();
+
+      xterm.moveToColStart();
+      xterm.clearCurrentLine();
+      xterm.moveUp();
+
+      pos = await cursorPosition;
+    }
 
     for (int lineNum = 0; lineNum < _lines.length; lineNum++) {
+      // xterm.moveToColStart();
+      // xterm.clearCurrentLine();
+
+      pos = await cursorPosition;
+      xterm.write(pos.toString());
+
       String line = _lines[lineNum];
       if (_curPos == null || lineNum != _curPos.y) {
         xterm.write(line);
       } else {
-        bool showCursor = _seconds.isEven;
         for (int colNum = 0; colNum < line.runes.length; colNum++) {
-          if (colNum == _curPos.x && showCursor) {
-            stdout.write("\u2588");
-          } else {
-            stdout.write(String.fromCharCode(line.runes.elementAt(colNum)));
-          }
+          pos = await cursorPosition;
+          stdout.write(pos);
+          stdout.write(String.fromCharCode(line.runes.elementAt(colNum)));
         }
       }
-      if (lineNum != _lines.length - 1) xterm.write('\n\r');
+      if (lineNum != _lines.length - 1) {
+        xterm.write('\n');
+        // xterm.moveDown();
+        xterm.moveToColStart();
+      }
     }
+
+    _rendering.complete();
+    _rendering = null;
   }
 }
 
@@ -94,7 +106,7 @@ class XTermOut {
   }
 
   void clearCurrentLine() {
-    write('\x1b[J');
+    write('\x1b[2K');
   }
 
   void eraseLinesBelow() {
@@ -103,6 +115,14 @@ class XTermOut {
 
   void ringBell() {
     write('\x07');
+  }
+
+  void moveUp() {
+    write('\x1b[A');
+  }
+
+  void moveDown() {
+    write('\x1b[B');
   }
 
   void write(String data) {

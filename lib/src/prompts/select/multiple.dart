@@ -66,7 +66,7 @@ Future<Set<int>> multiSelectIndex(List<String> options,
 
   final buffer = TermBuffer();
 
-  final render = () {
+  final render = () async {
     final lines = <String>[];
     lines.add(question); // TODO prompt template
     for (int i = pager.startIndexOfCurrentPage;
@@ -96,33 +96,35 @@ Future<Set<int>> multiSelectIndex(List<String> options,
       lines.add(content);
     }
     buffer.setContent(lines);
+    await buffer.render();
   };
 
-  await buffer.start();
+  await buffer.init();
 
-  render();
+  await render();
 
   final completer = Completer();
 
-  final sub = listen((List<int> data) {
+  final sub = listen((List<int> data) async {
     bool shouldRender = true;
     final chars = systemEncoding.decode(data);
-    if (data.first == asciiEscape) {
-      if (chars == "\x1b[A") {
+    if (chars.startsWith('\x1b[')) {
+      final seq = chars.substring(2);
+      if (seq == "A") {
         if (active > 0) {
           active--;
         } else {
           active = options.length - 1;
         }
         pager.moveToPageContainingIndex(active);
-      } else if (chars == "\x1b[B") {
+      } else if (seq == "B") {
         if (active < options.length - 1) {
           active++;
         } else {
           active = 0;
         }
         pager.moveToPageContainingIndex(active);
-      } else if (chars == "\x1b[5~") {
+      } else if (seq == "5~") {
         if (pager.hasPreviousPage) {
           pager.goToPreviousPage();
           active = pager.lastIndexOfCurrentPage;
@@ -130,7 +132,7 @@ Future<Set<int>> multiSelectIndex(List<String> options,
           shouldRender = false;
           stdout.write("\x07");
         }
-      } else if (chars == "\x1b[6~") {
+      } else if (seq == "6~") {
         if (pager.hasNextPage) {
           pager.goToNextPage();
           active = pager.startIndexOfCurrentPage;
@@ -140,6 +142,7 @@ Future<Set<int>> multiSelectIndex(List<String> options,
         }
       } else {
         // stdout.write(data);
+        shouldRender = false;
       }
     } else if (data.first == asciiEnter) {
       completer.complete();
@@ -156,19 +159,17 @@ Future<Set<int>> multiSelectIndex(List<String> options,
       shouldRender = false;
       // stdout.write(data);
     }
-    if (shouldRender) render();
+    if (shouldRender) await render();
   });
 
   await completer.future;
   await sub.cancel();
 
-  buffer.stop();
-
   {
     // TODO multiSelect success template
     buffer.setContent(
         [success(name, selected.map((i) => options[i]).toString())]);
-    buffer.render();
+    await buffer.render();
   }
 
   mode.stop();

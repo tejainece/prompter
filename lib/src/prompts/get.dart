@@ -31,7 +31,7 @@ Future<T> get<T>(
   var input = LineInput(content: defaultStr);
   var renderer = TermBuffer();
 
-  final render = () {
+  final render = () async {
     String contentStr = input.content;
     T content = stringer.to(contentStr);
     final error = validator(content);
@@ -40,12 +40,13 @@ Future<T> get<T>(
     final pfc = postfix(label, contentStr, error);
     renderer.setContent([pc + mc + ' ' + pfc],
         cursor: Point<int>(pc.length + input.pos, 0));
+    await renderer.render();
     return error;
   };
 
-  render();
+  await render();
 
-  await renderer.start();
+  await renderer.init();
 
   bool insertMode = false;
 
@@ -91,6 +92,7 @@ Future<T> get<T>(
         }
       } else {
         // stdout.write(data);
+        shouldRender = false;
       }
     } else if (data.first == asciiDel) {
       if (input.canBackspace) {
@@ -121,10 +123,8 @@ Future<T> get<T>(
   await completer.future;
   await sub.cancel();
 
-  renderer.stop();
-
   renderer.setContent([success(label, input.content)]);
-  renderer.render();
+  await renderer.render();
 
   mode.stop();
 
