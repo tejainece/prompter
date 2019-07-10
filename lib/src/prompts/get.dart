@@ -1,5 +1,6 @@
 import 'dart:math';
 import 'dart:async';
+import 'dart:convert';
 import 'package:prompter/src/tty/tty.dart';
 import 'package:prompter/src/validator.dart';
 
@@ -12,7 +13,8 @@ abstract class Stringer<T> {
   T to(String value);
 }
 
-Future<T> get<T>(Tty tty,
+Future<T> get<T>(
+  Tty tty,
   Stringer<T> stringer, {
   String label = "",
   T default_,
@@ -39,7 +41,7 @@ Future<T> get<T>(Tty tty,
     final mc = main(label, contentStr, error);
     final pfc = postfix(label, contentStr, error);
     renderer.setContent([pc + mc + ' ' + pfc],
-        cursor: Point<int>(pc.length + input.pos, 0));
+        cursor: Point<int>(pc.runes.length + input.pos, 0));
     await renderer.render();
     return error;
   };
@@ -52,71 +54,97 @@ Future<T> get<T>(Tty tty,
 
   final completer = Completer();
 
-  final sub = tty.listen((List<int> data) async {
-    bool shouldRender = true;
+  final sub = tty.listen((List<int> inp) async {
+    if(completer.isCompleted) return;
 
-    final chars = tty.encoding.decode(data);
-    if (chars.startsWith('\x1b[')) {
-      final seq = chars.substring(2);
-      if (seq == "D") {
+    bool shouldRender = false;
+
+    final dataList = parseStdin(tty.encoding.decode(inp).runes.toList());
+    for (final data in dataList) {
+      final chars = String.fromCharCodes(data);
+      if (chars.startsWith('\x1b[')) {
+        final seq = chars.substring(2);
+        if (seq == "D") {
+          if (input.canMoveBackward) {
+            input.moveBackward();
+            shouldRender = true;
+          } else {
+            tty.ringBell();
+          }
+        } else if (seq == "C") {
+          if (input.canMoveForward) {
+            input.moveForward();
+            shouldRender = true;
+          } else {
+            tty.ringBell();
+          }
+        } else if (seq == "H") {
+          if (input.canMoveBackward) {
+            input.moveToStart();
+            shouldRender = true;
+          } else {
+            tty.ringBell();
+          }
+        } else if (seq == "F") {
+          if (input.canMoveForward) {
+            input.moveToEnd();
+            shouldRender = true;
+          } else {
+            tty.ringBell();
+          }
+        } else if (seq == "2~") {
+          insertMode = !insertMode;
+        } else if (seq == '3~') {
+          if (input.canDel) {
+            input.del();
+            shouldRender = true;
+          } else {
+            tty.ringBell();
+          }
+        } else {
+          // stdout.write(data);
+        }
+      } else if (data.first == asciiDel) {
+        if (input.canBackspace) {
+          input.backspace();
+          shouldRender = true;
+        } else {
+          tty.ringBell();
+        }
+      } else if (data.first == asciiCtrlu) {
         if (input.canMoveBackward) {
-          input.moveBackward();
+          input.deleteToStart();
+          shouldRender = true;
         } else {
           tty.ringBell();
         }
-      } else if (seq == "C") {
+      } else if (data.first == asciiCtrlk) {
         if (input.canMoveForward) {
-          input.moveForward();
+          input.deleteToEnd();
+          shouldRender = true;
         } else {
           tty.ringBell();
         }
-      } else if (seq == "H") {
-        if (input.canMoveBackward) {
-          input.moveToStart();
-        } else {
-          tty.ringBell();
-        }
-      } else if (seq == "F") {
-        if (input.canMoveForward) {
-          input.moveToEnd();
-        } else {
-          tty.ringBell();
-        }
-      } else if (seq == "2~") {
-        insertMode = !insertMode;
-      } else if (seq == '3~') {
-        if (input.canDel) {
-          input.del();
-        } else {
-          tty.ringBell();
+      } else if (data.first == asciiEnter) {
+        final error = await render();
+        if (error == null) {
+          if(!completer.isCompleted) completer.complete();
+          return;
         }
       } else {
         // stdout.write(data);
-        shouldRender = false;
+        // stdout.write(chars);
+        shouldRender = true;
+        if (!insertMode) {
+          chars.runes.forEach(input.writeChar);
+        } else {
+          chars.runes.forEach(input.replaceChar);
+        }
+        // stdout.write(input.content.runes);
+        // stdout.write(input.content);
       }
-    } else if (data.first == asciiDel) {
-      if (input.canBackspace) {
-        input.backspace();
-      } else {
-        tty.ringBell();
-      }
-    } else if (data.first == asciiEnter) {
-      final error = render();
-      if (error == null) {
-        completer.complete();
-        return;
-      }
-    } else {
-      // stdout.write(data);
-      // stdout.write(chars);
-      if (!insertMode) {
-        chars.runes.forEach(input.writeChar);
-      } else {
-        chars.runes.forEach(input.replaceChar);
-      }
-      // stdout.write(input.content.runes);
-      // stdout.write(input.content);
     }
+
     if (shouldRender) await render();
   });
 

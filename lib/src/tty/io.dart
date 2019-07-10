@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'dart:async';
 import 'dart:convert';
+import 'dart:math';
 import 'dart:io' as io show stdout, stdin;
 
 import 'tty.dart';
@@ -26,7 +27,20 @@ class Stdio extends Tty {
 
   StreamSubscription<List<int>> listen(
           Future<void> Function(List<int> data) onData) =>
-  stdinListen(onData);
+      stdinListen(onData);
+
+  /*
+  Future<Point<int>> get size => _getSize();
+
+  Future<Point<int>> _getSize() async {
+    ProcessResult lines = await Process.run("tput", ['lines']);
+    ProcessResult cols = await Process.run("tput", ['cols']);
+    if (lines.exitCode != 0 || cols.exitCode != 0) {
+      throw Exception("Error executing tput");
+    }
+    return Point<int>(int.parse(cols.stdout), int.parse(lines.stdout));
+  }
+   */
 }
 
 Stream<TimedBytes> _stdin;

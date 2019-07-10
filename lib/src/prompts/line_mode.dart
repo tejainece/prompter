@@ -23,13 +23,11 @@ class Mode {
       throw UnsupportedError("Terminal does not support turning off lineMode!");
     }
 
-    tty.hideCursor();
-    // tty.disableWrap();
+    // tty.hideCursor();
   }
 
   void stop() {
     tty.showCursor();
-    // tty.enableWrap();
 
     try {
       tty.echoMode = _echoMode;

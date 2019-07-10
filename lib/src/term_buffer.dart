@@ -1,22 +1,12 @@
 import 'dart:math';
 import 'dart:async';
-import 'dart:convert';
 
 import 'package:prompter/src/tty/tty.dart';
-
-const asciiEscape = 27;
-const asciiDel = 127;
-const asciiEnter = 10;
-const asciiF = 70;
-const asciif = 102;
-const asciiSpace = 32;
 
 class TermBuffer {
   List<String> _lines = [];
 
   Point<int> _curPos; // TODO
-
-  // Point<int> _startingPos;
 
   final Tty tty;
 
@@ -27,37 +17,77 @@ class TermBuffer {
     _curPos = cursor;
   }
 
+  Point<int> _startPos;
+
+  Point<int> _oldSize;
+
   Completer _rendering;
 
   Future<void> init() async {
     // _startingPos = await cursorPosition;
   }
 
-  List<int> _lineLengths = [];
-
   Future<void> render() async {
     while (_rendering != null) {
-      await _rendering.future;
+      final future = _rendering.future;
+      await future;
     }
     _rendering = Completer();
 
+    if (_startPos == null) {
+      _startPos = await tty.cursorPosition;
+    }
+
     final size = await tty.size;
 
-    var startPos = await tty.cursorPosition;
+    if (_oldSize == null) _oldSize = size;
 
-    int prevHeight = 0;
-    for(int h in _lineLengths) {
-      prevHeight++;
-      prevHeight += (h - 1) ~/ size.x;
+    if (_oldSize != size) {
+      tty.clearScreen();
+      _startPos = Point<int>(1, 1);
+      _oldSize = size;
+    } else if (_startPos.y == size.y) {
+      tty.moveTo(Point<int>(1, _startPos.y));
+      tty.clearCurrentLine();
+      tty.eraseLinesBelow();
+
+      for (int i = 0; i < size.y - 1; i++) {
+        tty.write('\n');
+      }
+
+      _startPos = Point<int>(1, 1);
     }
-    _lineLengths.clear();
 
-    if (prevHeight != 0) {
-      tty.moveTo(Point<int>(1, startPos.y - prevHeight + 1));
-      tty.moveToColStart();
+    await _write();
+
+    var pos = await tty.cursorPosition;
+
+    if (pos.y == size.y) {
+      tty.moveTo(Point<int>(1, _startPos.y));
+      tty.clearCurrentLine();
+      tty.eraseLinesBelow();
+
+      for (int i = 0; i < size.y - 1; i++) {
+        tty.write('\n');
+      }
+
+      _startPos = Point<int>(1, 1);
+      await _write();
+    }
+
+    _rendering.complete();
+    _rendering = null;
+  }
+
+  void _write() async {
+    {
+      tty.moveTo(Point<int>(1, _startPos.y));
+      tty.clearCurrentLine();
       tty.eraseLinesBelow();
     }
     // tty.write("${startPos} ${prevHeight}");
+
+    Point<int> showCursorAt;
 
     for (int lineNum = 0; lineNum < _lines.length; lineNum++) {
       tty.moveToColStart();
@@ -67,26 +97,24 @@ class TermBuffer {
 
       String line = _lines[lineNum];
 
-      _lineLengths.add(line.runes.length);
-
-      for (int colNum = 0; colNum < line.runes.length; colNum++) {
-        tty.write(String.fromCharCode(line.runes.elementAt(colNum)));
+      if (_curPos == null || _curPos.y != lineNum) {
+        tty.write(line);
+      } else {
+        tty.write(line.substring(0, _curPos.x));
+        tty.write('\u2588');
+        tty.write(line.substring(_curPos.x + 1));
       }
-
-      tty.write(line.runes.length.toString());
 
       if (lineNum != _lines.length - 1) {
         tty.write('\n');
       }
     }
 
-    prevHeight = 0;
-    for(int h in _lineLengths) {
-      prevHeight++;
-      prevHeight += (h - 1) ~/ size.x;
+    if (showCursorAt != null) {
+      tty.moveTo(showCursorAt);
+      tty.showCursor();
+    } else {
+      tty.hideCursor();
     }
-
-    _rendering.complete();
-    _rendering = null;
   }
 }

@@ -13,7 +13,7 @@ class LineInput {
   String get content => String.fromCharCodes(_content);
 
   set content(String value) {
-    _content = value.codeUnits.toList();
+    _content = value.runes.toList();
     moveToEnd();
   }
 
@@ -46,6 +46,16 @@ class LineInput {
   bool get canMoveBackward => _pos > 0;
 
   bool get canMoveForward => _pos < _content.length;
+
+  void deleteToStart() {
+    _content.removeRange(0, _pos);
+    _pos = 0;
+  }
+
+  void deleteToEnd() {
+    _content.removeRange(_pos, _content.length);
+    _pos = _content.length;
+  }
 
   void writeChar(int char) {
     _content.insert(_pos, char);

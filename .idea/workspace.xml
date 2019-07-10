@@ -2,23 +2,16 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="b65c0607-30ae-4891-b077-e879382ae314" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/bin/select_long.dart" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/io.dart" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/src/tty/io.dart" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/src/tty/tty.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/bin/tools/read_byte.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/bin/main.dart" beforeDir="false" afterPath="$PROJECT_DIR$/bin/main.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bin/multiselect.dart" beforeDir="false" afterPath="$PROJECT_DIR$/bin/multiselect.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bin/select.dart" beforeDir="false" afterPath="$PROJECT_DIR$/bin/select.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bin/select_pagination.dart" beforeDir="false" afterPath="$PROJECT_DIR$/bin/select_pagination.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/src/prompts/double.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/src/prompts/double.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/src/line_input.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/src/line_input.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/src/prompts/get.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/src/prompts/get.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/src/prompts/int.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/src/prompts/int.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/src/prompts/line_mode.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/src/prompts/line_mode.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/src/prompts/select/multiple.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/src/prompts/select/multiple.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/src/prompts/select/select.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/src/prompts/select/select.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/src/prompts/string.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/src/prompts/string.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/src/term_buffer.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/src/term_buffer.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/src/tty/io.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/src/tty/io.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/src/tty/tty.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/src/tty/tty.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pubspec.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/pubspec.yaml" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -66,12 +59,22 @@
       </list>
     </option>
   </component>
-  <component name="RunManager">
+  <component name="RunManager" selected="Dart Command Line App.read_byte.dart">
     <configuration name="main.dart" type="DartCommandLineRunConfigurationType" factoryName="Dart Command Line Application">
       <option name="filePath" value="$PROJECT_DIR$/bin/main.dart" />
       <option name="workingDirectory" value="$PROJECT_DIR$" />
       <method v="2" />
     </configuration>
+    <configuration name="read_byte.dart" type="DartCommandLineRunConfigurationType" factoryName="Dart Command Line Application" temporary="true" nameIsGenerated="true">
+      <option name="filePath" value="$PROJECT_DIR$/bin/tools/read_byte.dart" />
+      <option name="workingDirectory" value="$PROJECT_DIR$" />
+      <method v="2" />
+    </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Dart Command Line App.read_byte.dart" />
+      </list>
+    </recent_temporary>
   </component>
   <component name="SvnConfiguration">
     <configuration />

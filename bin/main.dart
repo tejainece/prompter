@@ -64,7 +64,7 @@ String postfix(String label, input, String error) {
 main(List<String> arguments) async {
   final name = await getString(
       label: "Username",
-      default_: "Tej🚀",
+      default_: "Teja",
       prompt: prompt,
       validator: usernameValidator,
       postfix: postfix,
