@@ -1,11 +1,24 @@
+import 'package:prompter/src/tty/tty.dart';
+
+bool _isAlphaNumeric(int char) {
+  if (char >= ascii0 && char <= ascii9) {
+    return true;
+  } else if (char >= asciia && char <= asciiz) {
+    return true;
+  } else if (char >= asciiA && char <= asciiZ) {
+    return true;
+  }
+
+  return false;
+}
+
 class LineInput {
   var _content = <int>[];
 
   int _pos = 0;
 
   LineInput({String content = ""}) {
-    _content = content.codeUnits.toList();
-    _pos = _content.length;
+    this.content = content;
   }
 
   int get length => _content.length;
@@ -41,6 +54,48 @@ class LineInput {
 
   void moveBackward() {
     moveTo(_pos - 1);
+  }
+
+  void moveToStartWord() {
+    if(_pos == 0) return;
+
+    int p = _pos - 1;
+
+    for (; p >= 0; p--) {
+      if (_isAlphaNumeric(_content[p])) break;
+    }
+
+    for (; p >= 0; p--) {
+      if (!_isAlphaNumeric(_content[p])) break;
+    }
+    _pos = p + 1;
+  }
+
+  void moveToEndWord() {
+    int p = _pos + 1;
+
+    for (; p < _content.length; p++) {
+      if (_isAlphaNumeric(_content[p])) break;
+    }
+
+    for (; p < _content.length; p++) {
+      if (!_isAlphaNumeric(_content[p])) break;
+    }
+    _pos = p - 1;
+  }
+
+  void moveForwardWord() {
+    moveToEndWord();
+
+    if(_pos == _content.length) return;
+
+    int p = _pos + 1;
+
+    for (; p < _content.length; p++) {
+      if (_isAlphaNumeric(_content[p])) break;
+    }
+
+    _pos = p;
   }
 
   bool get canMoveBackward => _pos > 0;

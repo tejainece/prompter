@@ -171,7 +171,12 @@ const asciiD = 68;
 const asciiE = 69;
 const asciiF = 70;
 const asciiZ = 90;
+const asciia = 97;
+const asciib = 98;
+const asciie = 101;
 const asciif = 102;
+const asciis = 115;
+const asciiz = 122;
 const ascii0 = 48;
 const ascii9 = 57;
 const asciiSpace = 32;
@@ -199,7 +204,7 @@ Iterable<int> _parseStdinControlSequence(Iterable<int> startData) {
 
   data = data.skip(1);
 
-  if (data.first != asciiLeftSquareBracket) return [startData.first];
+  if (data.first != asciiLeftSquareBracket) return startData.take(2);
 
   data = data.skip(1);
 

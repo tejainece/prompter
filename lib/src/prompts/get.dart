@@ -104,6 +104,20 @@ Future<T> get<T>(
         } else {
           // stdout.write(data);
         }
+      } else if(data.first == asciiEscape) {
+        if(data.length == 2) {
+          final key = data.elementAt(1);
+          if(key == asciif) {
+            input.moveForwardWord();
+            shouldRender = true;
+          } else if(key == asciib) {
+            input.moveToStartWord();
+            shouldRender = true;
+          } else if(key == asciie) {
+            input.moveToEndWord();
+            shouldRender = true;
+          }
+        }
       } else if (data.first == asciiDel) {
         if (input.canBackspace) {
           input.backspace();
