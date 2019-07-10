@@ -1,4 +1,5 @@
 import 'package:prompter/src/validator.dart';
+import 'package:prompter/src/tty/tty.dart';
 
 import 'get.dart';
 
@@ -28,7 +29,7 @@ Validator<int> intValidator({int min, int max}) {
   };
 }
 
-Future<int> getInt(
+Future<int> getInt(Tty tty,
     {String label = "",
     int default_,
     Validator<int> validator,
@@ -37,7 +38,7 @@ Future<int> getInt(
     LineTemplate<String> postfix = noOpTemplate,
     SuccessTemplate<String> success = successTemplate}) async {
   if (validator == null) validator = intValidator();
-  return get(IntStringer.instance,
+  return get(tty, IntStringer.instance,
       label: label,
       default_: default_,
       validator: validator,

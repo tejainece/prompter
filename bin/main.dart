@@ -1,5 +1,5 @@
 import 'package:ansicolor/ansicolor.dart';
-import 'package:prompter/prompter.dart';
+import 'package:prompter/io.dart';
 
 class Person {
   String username;
@@ -64,7 +64,7 @@ String postfix(String label, input, String error) {
 main(List<String> arguments) async {
   final name = await getString(
       label: "Username",
-      default_: "Teja",
+      default_: "Tej🚀",
       prompt: prompt,
       validator: usernameValidator,
       postfix: postfix,

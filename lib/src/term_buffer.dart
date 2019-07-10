@@ -1,8 +1,8 @@
-import 'dart:io';
-import 'dart:io' as io show stdout, stdin;
 import 'dart:math';
 import 'dart:async';
 import 'dart:convert';
+
+import 'package:prompter/src/tty/tty.dart';
 
 const asciiEscape = 27;
 const asciiDel = 127;
@@ -14,13 +14,13 @@ const asciiSpace = 32;
 class TermBuffer {
   List<String> _lines = [];
 
-  Point<int> _curPos;
+  Point<int> _curPos; // TODO
 
-  Point<int> _startingPos;
+  // Point<int> _startingPos;
 
-  XTermOut xterm = XTermOut();
+  final Tty tty;
 
-  TermBuffer();
+  TermBuffer(this.tty);
 
   void setContent(List<String> lines, {Point<int> cursor}) {
     _lines = lines.toList();
@@ -30,10 +30,10 @@ class TermBuffer {
   Completer _rendering;
 
   Future<void> init() async {
-    _startingPos = await cursorPosition;
+    // _startingPos = await cursorPosition;
   }
 
-  int _prevHeight;
+  List<int> _lineLengths = [];
 
   Future<void> render() async {
     while (_rendering != null) {
@@ -41,137 +41,52 @@ class TermBuffer {
     }
     _rendering = Completer();
 
-    var pos = await cursorPosition;
+    final size = await tty.size;
 
-    // xterm.moveTo(_startingPos);
-    // xterm.moveToColStart();
+    var startPos = await tty.cursorPosition;
 
-    while (pos.y > _startingPos.y) {
-      // xterm.moveTo(_startingPos);
-      // xterm.moveToColStart();
-      // xterm.eraseLinesBelow();
-
-      xterm.moveToColStart();
-      xterm.clearCurrentLine();
-      xterm.moveUp();
-
-      pos = await cursorPosition;
+    int prevHeight = 0;
+    for(int h in _lineLengths) {
+      prevHeight++;
+      prevHeight += (h - 1) ~/ size.x;
     }
+    _lineLengths.clear();
+
+    if (prevHeight != 0) {
+      tty.moveTo(Point<int>(1, startPos.y - prevHeight + 1));
+      tty.moveToColStart();
+      tty.eraseLinesBelow();
+    }
+    // tty.write("${startPos} ${prevHeight}");
 
     for (int lineNum = 0; lineNum < _lines.length; lineNum++) {
-      // xterm.moveToColStart();
-      // xterm.clearCurrentLine();
+      tty.moveToColStart();
 
-      pos = await cursorPosition;
-      xterm.write(pos.toString());
+      // pos = await tty.cursorPosition;
+      // tty.write(pos.toString());
 
       String line = _lines[lineNum];
-      if (_curPos == null || lineNum != _curPos.y) {
-        xterm.write(line);
-      } else {
-        for (int colNum = 0; colNum < line.runes.length; colNum++) {
-          pos = await cursorPosition;
-          stdout.write(pos);
-          stdout.write(String.fromCharCode(line.runes.elementAt(colNum)));
-        }
+
+      _lineLengths.add(line.runes.length);
+
+      for (int colNum = 0; colNum < line.runes.length; colNum++) {
+        tty.write(String.fromCharCode(line.runes.elementAt(colNum)));
       }
+
+      tty.write(line.runes.length.toString());
+
       if (lineNum != _lines.length - 1) {
-        xterm.write('\n');
-        // xterm.moveDown();
-        xterm.moveToColStart();
+        tty.write('\n');
       }
+    }
+
+    prevHeight = 0;
+    for(int h in _lineLengths) {
+      prevHeight++;
+      prevHeight += (h - 1) ~/ size.x;
     }
 
     _rendering.complete();
     _rendering = null;
   }
-}
-
-class XTermOut {
-  final StreamSink<List<int>> stdout;
-
-  final Encoding encoding;
-
-  XTermOut({Encoding encoding, StreamSink<List<int>> stdout})
-      : stdout = stdout ?? io.stdout,
-        encoding = encoding ?? systemEncoding;
-
-  /// Moves the terminal cursor to given [position]
-  void moveTo(Point<int> position) {
-    write('\x1b[${position.y};${position.x}f');
-  }
-
-  void moveToColStart() {
-    write('\r');
-  }
-
-  void clearCurrentLine() {
-    write('\x1b[2K');
-  }
-
-  void eraseLinesBelow() {
-    write('\x1b[J');
-  }
-
-  void ringBell() {
-    write('\x07');
-  }
-
-  void moveUp() {
-    write('\x1b[A');
-  }
-
-  void moveDown() {
-    write('\x1b[B');
-  }
-
-  void write(String data) {
-    stdout.add(encoding.encode(data));
-  }
-}
-
-Point<int> parseCursorPosition(String input) {
-  final match = RegExp('^([0-9]+);([0-9]+)R\$').matchAsPrefix(input);
-  if (match == null) return null;
-  return Point<int>(int.parse(match.group(2)), int.parse(match.group(1)));
-}
-
-Future<Point<int>> get cursorPosition async {
-  final completer = Completer<Point<int>>();
-  final sub = listen((data) {
-    final chars = systemEncoding.decode(data);
-    if (!chars.startsWith('\x1b[')) return;
-    final seq = chars.substring(2);
-    final pos = parseCursorPosition(seq);
-    if (pos != null) completer.complete(pos);
-  });
-  stdout.write('\x1b[6n');
-  final ret = await completer.future;
-  await sub.cancel();
-  return ret;
-}
-
-Stream<TimedBytes> _stdin;
-
-class TimedBytes {
-  final DateTime time;
-
-  final List<int> data;
-
-  TimedBytes(this.time, this.data);
-}
-
-Stream<TimedBytes> get stdinBC {
-  _stdin ??= io.stdin.map((data) {
-    return TimedBytes(DateTime.now().toUtc(), data);
-  }).asBroadcastStream();
-  return _stdin;
-}
-
-StreamSubscription<List<int>> listen(void onData(List<int> event)) {
-  final now = DateTime.now().toUtc();
-  return stdinBC
-      .where((td) => td.time.isAfter(now))
-      .map((td) => td.data)
-      .listen(onData);
 }

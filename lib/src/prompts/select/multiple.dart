@@ -1,7 +1,7 @@
-import 'dart:io';
 import 'package:meta/meta.dart';
 import 'dart:async';
 import 'package:prompter/prompter.dart';
+import 'package:prompter/src/tty/tty.dart';
 import '../line_mode.dart';
 import '../pager.dart';
 
@@ -30,13 +30,13 @@ String defaultMultiSelectItemTemplate(
   return sb.toString();
 }
 
-Future<List<String>> multiSelect(List<String> options,
+Future<List<String>> multiSelect(Tty tty, List<String> options,
     {String question,
     @required String name,
     Set<int> selected,
     MultiSelectItemTemplate itemTemplate = defaultMultiSelectItemTemplate,
     SuccessTemplate<String> success = successTemplate}) async {
-  final index = await multiSelectIndex(options,
+  final index = await multiSelectIndex(tty, options,
       question: question,
       name: name,
       selected: selected,
@@ -45,7 +45,7 @@ Future<List<String>> multiSelect(List<String> options,
   return index.map((i) => options[i]).toList();
 }
 
-Future<Set<int>> multiSelectIndex(List<String> options,
+Future<Set<int>> multiSelectIndex(Tty tty, List<String> options,
     {String question,
     @required String name,
     Set<int> selected,
@@ -61,10 +61,10 @@ Future<Set<int>> multiSelectIndex(List<String> options,
   question ??= name;
   final pager = Pager(options, itemsPerPage: itemsPerPage);
 
-  final mode = Mode();
+  final mode = Mode(tty);
   mode.start();
 
-  final buffer = TermBuffer();
+  final buffer = TermBuffer(tty);
 
   final render = () async {
     final lines = <String>[];
@@ -105,9 +105,9 @@ Future<Set<int>> multiSelectIndex(List<String> options,
 
   final completer = Completer();
 
-  final sub = listen((List<int> data) async {
+  final sub = tty.listen((List<int> data) async {
     bool shouldRender = true;
-    final chars = systemEncoding.decode(data);
+    final chars = tty.encoding.decode(data);
     if (chars.startsWith('\x1b[')) {
       final seq = chars.substring(2);
       if (seq == "A") {
@@ -130,7 +130,7 @@ Future<Set<int>> multiSelectIndex(List<String> options,
           active = pager.lastIndexOfCurrentPage;
         } else {
           shouldRender = false;
-          stdout.write("\x07");
+          tty.ringBell();
         }
       } else if (seq == "6~") {
         if (pager.hasNextPage) {
@@ -138,7 +138,7 @@ Future<Set<int>> multiSelectIndex(List<String> options,
           active = pager.startIndexOfCurrentPage;
         } else {
           shouldRender = false;
-          stdout.write("\x07");
+          tty.ringBell();
         }
       } else {
         // stdout.write(data);

@@ -1,3 +1,4 @@
+import 'package:prompter/src/tty/tty.dart';
 import 'package:prompter/src/validator.dart';
 
 import 'get.dart';
@@ -28,7 +29,7 @@ Validator<double> doubleValidator({double min, double max}) {
   };
 }
 
-Future<double> getDouble(
+Future<double> getDouble(Tty tty,
     {String label = "",
     double default_,
     Validator<double> validator,
@@ -37,7 +38,7 @@ Future<double> getDouble(
     LineTemplate<String> postfix = noOpTemplate,
     SuccessTemplate<String> success = successTemplate}) async {
   if (validator == null) validator = doubleValidator();
-  return get(DoubleStringer.instance,
+  return get(tty, DoubleStringer.instance,
       label: label,
       default_: default_,
       validator: validator,

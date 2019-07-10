@@ -1,39 +1,43 @@
-import 'dart:io';
+import 'package:prompter/src/tty/tty.dart';
 
 class Mode {
+  final Tty tty;
+
   bool _echoMode;
 
   bool _lineMode;
 
-  Mode();
+  Mode(this.tty);
 
   void start() {
     try {
-      _echoMode = stdin.echoMode;
-      stdin.echoMode = false;
+      _echoMode = tty.echoMode;
+      tty.echoMode = false;
     } catch (e) {
       throw UnsupportedError("Terminal does not support turning off echoMode!");
     }
     try {
-      _lineMode = stdin.lineMode;
-      stdin.lineMode = false;
+      _lineMode = tty.lineMode;
+      tty.lineMode = false;
     } catch (e) {
       throw UnsupportedError("Terminal does not support turning off lineMode!");
     }
 
-    stdout.write("\x1b[?25l");
+    tty.hideCursor();
+    // tty.disableWrap();
   }
 
   void stop() {
-    stdout.write("\x1b[?25h");
+    tty.showCursor();
+    // tty.enableWrap();
 
     try {
-      stdin.echoMode = _echoMode;
+      tty.echoMode = _echoMode;
     } catch (e) {
       throw UnsupportedError("Terminal does not support turning off echoMode!");
     }
     try {
-      stdin.lineMode = _lineMode;
+      tty.lineMode = _lineMode;
     } catch (e) {
       throw UnsupportedError("Terminal does not support turning off lineMode!");
     }

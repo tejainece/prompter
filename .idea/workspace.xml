@@ -2,10 +2,22 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="b65c0607-30ae-4891-b077-e879382ae314" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/bin/select_long.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/lib/io.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/lib/src/tty/io.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/lib/src/tty/tty.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/main.dart" beforeDir="false" afterPath="$PROJECT_DIR$/bin/main.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/multiselect.dart" beforeDir="false" afterPath="$PROJECT_DIR$/bin/multiselect.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/select.dart" beforeDir="false" afterPath="$PROJECT_DIR$/bin/select.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/select_pagination.dart" beforeDir="false" afterPath="$PROJECT_DIR$/bin/select_pagination.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/src/prompts/double.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/src/prompts/double.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/src/prompts/get.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/src/prompts/get.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/src/prompts/int.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/src/prompts/int.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/src/prompts/line_mode.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/src/prompts/line_mode.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/src/prompts/select/multiple.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/src/prompts/select/multiple.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/src/prompts/select/select.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/src/prompts/select/select.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/src/prompts/string.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/src/prompts/string.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/src/term_buffer.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/src/term_buffer.dart" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -37,6 +49,7 @@
       <recent name="$PROJECT_DIR$/bin" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/lib/src/tty" />
       <recent name="$PROJECT_DIR$/lib/src/prompts" />
       <recent name="$PROJECT_DIR$/lib/src" />
     </key>

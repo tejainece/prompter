@@ -1,9 +1,9 @@
-import 'dart:io';
 import 'package:meta/meta.dart';
 import 'dart:async';
 import 'package:prompter/prompter.dart';
 import '../line_mode.dart';
 import '../pager.dart';
+import 'package:prompter/src/tty/tty.dart';
 
 typedef SelectItemTemplate = String Function(
     int index, String option, bool selected);
@@ -17,13 +17,13 @@ String defaultSelectItemTemplate(int index, String option, bool selected) {
   }
 }
 
-Future<String> select(List<String> options,
+Future<String> select(Tty tty, List<String> options,
     {String question,
     @required String name,
     int selected = 0,
     SelectItemTemplate itemTemplate = defaultSelectItemTemplate,
     SuccessTemplate<String> success = successTemplate}) async {
-  final index = await selectIndex(options,
+  final index = await selectIndex(tty, options,
       question: question,
       name: name,
       selected: selected,
@@ -32,7 +32,7 @@ Future<String> select(List<String> options,
   return options[index];
 }
 
-Future<int> selectIndex(List<String> options,
+Future<int> selectIndex(Tty tty, List<String> options,
     {String question,
     @required String name,
     int selected = 0,
@@ -42,10 +42,10 @@ Future<int> selectIndex(List<String> options,
   question ??= name;
   final pager = Pager(options, itemsPerPage: itemsPerPage);
 
-  final mode = Mode();
+  final mode = Mode(tty);
   mode.start();
 
-  final buffer = TermBuffer();
+  final buffer = TermBuffer(tty);
 
   final render = () async {
     final lines = <String>[];
@@ -86,9 +86,9 @@ Future<int> selectIndex(List<String> options,
 
   final completer = Completer();
 
-  final sub = listen((List<int> data) async {
+  final sub = tty.listen((List<int> data) async {
     bool shouldRender = true;
-    final chars = systemEncoding.decode(data);
+    final chars = tty.encoding.decode(data);
     if (chars.startsWith('\x1b[')) {
       final seq = chars.substring(2);
       if (seq == "A") {
@@ -111,7 +111,7 @@ Future<int> selectIndex(List<String> options,
           selected = pager.lastIndexOfCurrentPage;
         } else {
           shouldRender = false;
-          stdout.write("\x07");
+          tty.ringBell();
         }
       } else if (seq == "6~") {
         if (pager.hasNextPage) {
@@ -119,7 +119,7 @@ Future<int> selectIndex(List<String> options,
           selected = pager.startIndexOfCurrentPage;
         } else {
           shouldRender = false;
-          stdout.write("\x07");
+          tty.ringBell();
         }
       } else {
         // stdout.write(data);
@@ -130,7 +130,7 @@ Future<int> selectIndex(List<String> options,
       return;
     } else if (data.first == asciif || data.first == asciiF) {
       // TODO filter mode
-    }  else {
+    } else {
       shouldRender = false;
       // stdout.write(data);
     }

@@ -1,6 +1,6 @@
 import 'dart:math';
 import 'dart:async';
-import 'dart:io';
+import 'package:prompter/src/tty/tty.dart';
 import 'package:prompter/src/validator.dart';
 
 import 'line_mode.dart';
@@ -12,7 +12,7 @@ abstract class Stringer<T> {
   T to(String value);
 }
 
-Future<T> get<T>(
+Future<T> get<T>(Tty tty,
   Stringer<T> stringer, {
   String label = "",
   T default_,
@@ -23,13 +23,13 @@ Future<T> get<T>(
   LineTemplate<String> postfix = noOpTemplate,
   SuccessTemplate<String> success = successTemplate,
 }) async {
-  final mode = Mode();
-  mode.start();
-
   final defaultStr = default_ != null ? stringer.from(default_) : '';
 
+  final mode = Mode(tty);
+  mode.start();
+
   var input = LineInput(content: defaultStr);
-  var renderer = TermBuffer();
+  var renderer = TermBuffer(tty);
 
   final render = () async {
     String contentStr = input.content;
@@ -52,35 +52,35 @@ Future<T> get<T>(
 
   final completer = Completer();
 
-  final sub = listen((List<int> data) async {
+  final sub = tty.listen((List<int> data) async {
     bool shouldRender = true;
 
-    final chars = systemEncoding.decode(data);
+    final chars = tty.encoding.decode(data);
     if (chars.startsWith('\x1b[')) {
       final seq = chars.substring(2);
       if (seq == "D") {
         if (input.canMoveBackward) {
           input.moveBackward();
         } else {
-          stdout.write("\x07");
+          tty.ringBell();
         }
       } else if (seq == "C") {
         if (input.canMoveForward) {
           input.moveForward();
         } else {
-          stdout.write("\x07");
+          tty.ringBell();
         }
       } else if (seq == "H") {
         if (input.canMoveBackward) {
           input.moveToStart();
         } else {
-          stdout.write("\x07");
+          tty.ringBell();
         }
       } else if (seq == "F") {
         if (input.canMoveForward) {
           input.moveToEnd();
         } else {
-          stdout.write("\x07");
+          tty.ringBell();
         }
       } else if (seq == "2~") {
         insertMode = !insertMode;
@@ -88,7 +88,7 @@ Future<T> get<T>(
         if (input.canDel) {
           input.del();
         } else {
-          stdout.write("\x07");
+          tty.ringBell();
         }
       } else {
         // stdout.write(data);
@@ -98,7 +98,7 @@ Future<T> get<T>(
       if (input.canBackspace) {
         input.backspace();
       } else {
-        stdout.write("\x07");
+        tty.ringBell();
       }
     } else if (data.first == asciiEnter) {
       final error = render();
