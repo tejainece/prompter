@@ -56,8 +56,8 @@ class LineInput {
     moveTo(_pos - 1);
   }
 
-  void moveToBackwardWord() {
-    if(_pos == 0) return;
+  void moveBackwardWord() {
+    if (_pos == 0) return;
 
     int p = _pos - 1;
 
@@ -81,18 +81,33 @@ class LineInput {
     for (; p < _content.length; p++) {
       if (!_isAlphaNumeric(_content[p])) break;
     }
+
     _pos = p - 1;
   }
 
   void moveForwardWord() {
-    moveToEndWord();
+    if (_pos == _content.length) return;
 
-    if(_pos == _content.length) return;
+    int p = _pos;
 
-    int p = _pos + 1;
+    if (_isAlphaNumeric(_content[p])) {
+      for (; p < _content.length; p++) {
+        if (!_isAlphaNumeric(_content[p])) break;
+      }
+    }
+
+    if (p == _content.length) {
+      _pos = p;
+      return;
+    }
 
     for (; p < _content.length; p++) {
       if (_isAlphaNumeric(_content[p])) break;
+    }
+
+    if (p == _content.length) {
+      _pos = p;
+      return;
     }
 
     _pos = p;
@@ -117,11 +132,38 @@ class LineInput {
   }
 
   void deleteToStartOfWord() {
-    // TODO
+    if (_pos == 0) return;
+
+    int p = _pos - 1;
+
+    for (; p >= 0; p--) {
+      if (_isAlphaNumeric(_content[p])) break;
+    }
+
+    for (; p >= 0; p--) {
+      if (!_isAlphaNumeric(_content[p])) break;
+    }
+
+    _content.removeRange(p + 1, _pos);
+    _pos = p + 1;
   }
 
   void deleteToEndOfWord() {
-    // TODO
+    if(_pos == _content.length) return;
+
+    int p = _pos;
+
+    if(!_isAlphaNumeric(_content[p])) {
+      for (; p < _content.length; p++) {
+        if (_isAlphaNumeric(_content[p])) break;
+      }
+    }
+
+    for (; p < _content.length; p++) {
+      if (!_isAlphaNumeric(_content[p])) break;
+    }
+
+    _content.removeRange(_pos, p);
   }
 
   void writeChar(int char) {

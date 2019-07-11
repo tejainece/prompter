@@ -5,8 +5,6 @@
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/src/line_input.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/src/line_input.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/src/prompts/get.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/src/prompts/get.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/src/term_buffer.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/src/term_buffer.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/src/tty/tty.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/src/tty/tty.dart" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />

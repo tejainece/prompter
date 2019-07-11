@@ -109,7 +109,7 @@ Future<T> get<T>(
           input.moveForwardWord();
           shouldRender = true;
         } else if (key == asciib) {
-          input.moveToBackwardWord();
+          input.moveBackwardWord();
           shouldRender = true;
         } else if (key == asciie) {
           input.moveToEndWord();
