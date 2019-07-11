@@ -79,6 +79,14 @@ abstract class Tty {
     out.add(encoding.encode(data));
   }
 
+  void writeRune(int data) {
+    write(String.fromCharCode(data));
+  }
+
+  void writeRunes(Iterable<int> data) {
+    write(String.fromCharCodes(data));
+  }
+
   void reportCursorPosition() {
     write('\x1b[6n');
   }

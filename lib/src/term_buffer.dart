@@ -8,13 +8,17 @@ class TermBuffer {
 
   Point<int> _curPos;
 
+  bool _insertMode = false;
+
   final Tty tty;
 
   TermBuffer(this.tty);
 
-  void setContent(List<String> lines, {Point<int> cursor}) {
+  void setContent(List<String> lines,
+      {Point<int> cursor, bool insertMode = false}) {
     _lines = lines.toList();
     _curPos = cursor;
+    _insertMode = insertMode;
   }
 
   Point<int> _startPos;
@@ -98,9 +102,20 @@ class TermBuffer {
       if (_curPos == null || _curPos.y != lineNum) {
         tty.write(line);
       } else {
-        tty.write(line.substring(0, _curPos.x));
-        tty.write('\u2588');
-        tty.write(line.substring(_curPos.x + 1));
+        tty.writeRunes(line.runes.take(_curPos.x));
+        tty.write('\x1b[5m');
+        if(_insertMode) {
+          tty.writeRune(line.runes.elementAt(_curPos.x));
+        } else {
+          tty.write('\u2038');
+          // tty.write('\u2588');
+        }
+        tty.write('\x1b[25m');
+        if(_insertMode) {
+          tty.writeRunes(line.runes.skip(_curPos.x + 1));
+        } else {
+          tty.writeRunes(line.runes.skip(_curPos.x));
+        }
       }
 
       if (lineNum != _lines.length - 1) {

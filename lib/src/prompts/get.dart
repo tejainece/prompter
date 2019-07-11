@@ -33,6 +33,8 @@ Future<T> get<T>(
   var input = LineInput(content: defaultStr);
   var renderer = TermBuffer(tty);
 
+  bool insertMode = false;
+
   final render = () async {
     String contentStr = input.content;
     T content = stringer.to(contentStr);
@@ -40,8 +42,9 @@ Future<T> get<T>(
     final pc = prompt(label, contentStr, error);
     final mc = main(label, contentStr, error);
     final pfc = postfix(label, contentStr, error);
-    renderer.setContent([pc + mc + ' ' + pfc],
-        cursor: Point<int>(pc.runes.length + input.pos, 0));
+    renderer.setContent([pc + mc + (insertMode ? ' ' : '') + pfc],
+        cursor: Point<int>(pc.runes.length + input.pos, 0),
+        insertMode: insertMode);
     await renderer.render();
     return error;
   };
@@ -49,8 +52,6 @@ Future<T> get<T>(
   await render();
 
   await renderer.init();
-
-  bool insertMode = false;
 
   final completer = Completer();
 
@@ -92,6 +93,7 @@ Future<T> get<T>(
         }
       } else if (seq == "2~") {
         insertMode = !insertMode;
+        shouldRender = true;
       } else if (seq == '3~') {
         if (input.canDel) {
           input.del();

@@ -65,7 +65,7 @@ main(List<String> arguments) async {
   stdinBytes;
 
   final name = await getString(
-      label: "Username",
+      label: "\u{1F464} Username",
       default_: "Teja",
       prompt: prompt,
       validator: usernameValidator,
