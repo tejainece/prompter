@@ -1,6 +1,5 @@
 import 'dart:math';
 import 'dart:async';
-import 'dart:convert';
 import 'package:prompter/src/tty/tty.dart';
 import 'package:prompter/src/validator.dart';
 
@@ -43,7 +42,7 @@ Future<T> get<T>(
     final mc = main(label, contentStr, error);
     final pfc = postfix(label, contentStr, error);
     renderer.setContent([pc + mc + (insertMode ? ' ' : '') + pfc],
-        cursor: Point<int>(pc.runes.length + input.pos, 0),
+        cursor: Point<int>(pc.runes.length + input.colNum, 0),
         insertMode: insertMode);
     await renderer.render();
     return error;
@@ -79,14 +78,14 @@ Future<T> get<T>(
         }
       } else if (seq == "H") {
         if (input.canMoveBackward) {
-          input.moveToStart();
+          input.moveToStartOfLine();
           shouldRender = true;
         } else {
           tty.ringBell();
         }
       } else if (seq == "F") {
         if (input.canMoveForward) {
-          input.moveToEnd();
+          input.moveToEndOfLine();
           shouldRender = true;
         } else {
           tty.ringBell();
@@ -130,14 +129,14 @@ Future<T> get<T>(
       }
     } else if (data.first == asciiCtrlu) {
       if (input.canMoveBackward) {
-        input.deleteToStart();
+        input.deleteToStartOfLine();
         shouldRender = true;
       } else {
         tty.ringBell();
       }
     } else if (data.first == asciiCtrlk) {
       if (input.canMoveForward) {
-        input.deleteToEnd();
+        input.deleteToEndOfLine();
         shouldRender = true;
       } else {
         tty.ringBell();

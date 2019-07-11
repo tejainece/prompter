@@ -103,15 +103,12 @@ class TermBuffer {
         tty.write(line);
       } else {
         tty.writeRunes(line.runes.take(_curPos.x));
-        tty.write('\x1b[5m');
-        if(_insertMode) {
-          tty.writeRune(line.runes.elementAt(_curPos.x));
+        if (_insertMode) {
+          tty.write('\u2588');
         } else {
           tty.write('\u2038');
-          // tty.write('\u2588');
         }
-        tty.write('\x1b[25m');
-        if(_insertMode) {
+        if (_insertMode) {
           tty.writeRunes(line.runes.skip(_curPos.x + 1));
         } else {
           tty.writeRunes(line.runes.skip(_curPos.x));

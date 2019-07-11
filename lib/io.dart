@@ -97,3 +97,19 @@ Future<List<String>> multiSelect(List<String> options,
         success: success);
 
 // TODO multiSelectIndex
+
+Future<String> readMultiLineText({
+  String label = "",
+  String default_ = "",
+  Suggester suggester, // TODO
+  PromptMultiLineTemplate prompt = promptMultiLineTemplate,
+  MultiLineLineTemplate lineTemplate = multiLineLineTemplate,
+  SuccessTemplate<String> success = successTemplate,
+}) =>
+    prompter.readMultiLineText(stdio,
+        label: label,
+        default_: default_,
+        suggester: suggester,
+        prompt: prompt,
+        lineTemplate: lineTemplate,
+        success: success);
