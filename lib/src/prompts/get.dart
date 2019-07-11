@@ -109,10 +109,13 @@ Future<T> get<T>(
           input.moveForwardWord();
           shouldRender = true;
         } else if (key == asciib) {
-          input.moveToStartWord();
+          input.moveToBackwardWord();
           shouldRender = true;
         } else if (key == asciie) {
           input.moveToEndWord();
+          shouldRender = true;
+        } else if (key == asciid) {
+          input.deleteLine();
           shouldRender = true;
         }
       }
@@ -133,6 +136,20 @@ Future<T> get<T>(
     } else if (data.first == asciiCtrlk) {
       if (input.canMoveForward) {
         input.deleteToEnd();
+        shouldRender = true;
+      } else {
+        tty.ringBell();
+      }
+    } else if (data.first == asciiCtrlb) {
+      if (input.canMoveBackward) {
+        input.deleteToStartOfWord();
+        shouldRender = true;
+      } else {
+        tty.ringBell();
+      }
+    } else if (data.first == asciiCtrlf) {
+      if (input.canMoveForward) {
+        input.deleteToEndOfWord();
         shouldRender = true;
       } else {
         tty.ringBell();

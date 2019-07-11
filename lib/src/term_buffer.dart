@@ -6,7 +6,7 @@ import 'package:prompter/src/tty/tty.dart';
 class TermBuffer {
   List<String> _lines = [];
 
-  Point<int> _curPos; // TODO
+  Point<int> _curPos;
 
   final Tty tty;
 

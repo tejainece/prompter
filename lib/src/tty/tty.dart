@@ -201,6 +201,7 @@ const asciiF = 70;
 const asciiZ = 90;
 const asciia = 97;
 const asciib = 98;
+const asciid = 100;
 const asciie = 101;
 const asciif = 102;
 const asciis = 115;
@@ -212,6 +213,8 @@ const asciiTilde = 126;
 const asciiSemicolon = 59;
 const asciiLeftSquareBracket = 91;
 
+const asciiCtrlb = 2;
+const asciiCtrlf = 6;
 const asciiCtrlk = 11;
 const asciiCtrlu = 21;
 

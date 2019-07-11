@@ -56,7 +56,7 @@ class LineInput {
     moveTo(_pos - 1);
   }
 
-  void moveToStartWord() {
+  void moveToBackwardWord() {
     if(_pos == 0) return;
 
     int p = _pos - 1;
@@ -110,6 +110,18 @@ class LineInput {
   void deleteToEnd() {
     _content.removeRange(_pos, _content.length);
     _pos = _content.length;
+  }
+
+  void deleteLine() {
+    content = "";
+  }
+
+  void deleteToStartOfWord() {
+    // TODO
+  }
+
+  void deleteToEndOfWord() {
+    // TODO
   }
 
   void writeChar(int char) {
