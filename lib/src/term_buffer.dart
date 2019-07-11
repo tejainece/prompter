@@ -80,11 +80,9 @@ class TermBuffer {
   }
 
   void _write() async {
-    {
-      tty.moveTo(Point<int>(1, _startPos.y));
-      tty.clearCurrentLine();
-      tty.eraseLinesBelow();
-    }
+    tty.moveTo(Point<int>(1, _startPos.y));
+    tty.clearCurrentLine();
+    tty.eraseLinesBelow();
     // tty.write("${startPos} ${prevHeight}");
 
     Point<int> showCursorAt;

@@ -62,6 +62,8 @@ String postfix(String label, input, String error) {
 }
 
 main(List<String> arguments) async {
+  stdinBytes;
+
   final name = await getString(
       label: "Username",
       default_: "Teja",

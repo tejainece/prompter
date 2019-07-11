@@ -105,7 +105,7 @@ Future<Set<int>> multiSelectIndex(Tty tty, List<String> options,
 
   final completer = Completer();
 
-  final sub = tty.listen((List<int> data) async {
+  final sub = tty.runes.listen((List<int> data) async {
     bool shouldRender = true;
     final chars = tty.encoding.decode(data);
     if (chars.startsWith('\x1b[')) {

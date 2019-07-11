@@ -1,7 +1,6 @@
 import 'dart:io';
 import 'dart:async';
 import 'dart:convert';
-import 'dart:math';
 import 'dart:io' as io show stdout, stdin;
 
 import 'tty.dart';
@@ -25,9 +24,7 @@ class Stdio extends Tty {
     io.stdin.lineMode = value;
   }
 
-  StreamSubscription<List<int>> listen(
-          Future<void> Function(List<int> data) onData) =>
-      stdinListen(onData);
+  Stream<List<int>> get bytes => stdinBytes;
 
   /*
   Future<Point<int>> get size => _getSize();
@@ -43,7 +40,7 @@ class Stdio extends Tty {
    */
 }
 
-Stream<TimedBytes> _stdin;
+Stream<List<int>> _stdin;
 
 class TimedBytes {
   final DateTime time;
@@ -53,17 +50,4 @@ class TimedBytes {
   TimedBytes(this.time, this.data);
 }
 
-Stream<TimedBytes> get stdinBC {
-  _stdin ??= io.stdin.map((data) {
-    return TimedBytes(DateTime.now().toUtc(), data);
-  }).asBroadcastStream();
-  return _stdin;
-}
-
-StreamSubscription<List<int>> stdinListen(void onData(List<int> event)) {
-  final now = DateTime.now().toUtc();
-  return stdinBC
-      .where((td) => td.time.isAfter(now))
-      .map((td) => td.data)
-      .listen(onData);
-}
+Stream<List<int>> get stdinBytes => _stdin ??= io.stdin.asBroadcastStream();

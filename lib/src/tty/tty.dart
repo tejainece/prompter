@@ -7,8 +7,30 @@ typedef Listener<T> = StreamSubscription<T> Function(void Function(T data));
 abstract class Tty {
   StreamSink<List<int>> get out;
 
-  StreamSubscription<List<int>> listen(
-      Future<void> Function(List<int> data) onData);
+  Stream<List<int>> get bytes;
+
+  Stream<List<int>> get runes {
+    List<int> pending;
+    return bytes.transform<List<int>>(StreamTransformer.fromHandlers(
+        handleData: (List<int> input, EventSink<List<int>> sink) {
+      List<int> send;
+      if (pending != null) {
+        send = pending.toList()..addAll(input);
+      } else {
+        send = input;
+      }
+
+      final runes = parseStdin(encoding.decode(send).runes.toList());
+      if (runes.value.isNotEmpty) {
+        pending = runes.value;
+      } else {
+        pending = null;
+      }
+      for (final r in runes.key) {
+        sink.add(r);
+      }
+    }));
+  }
 
   Encoding get encoding;
 
@@ -92,19 +114,21 @@ abstract class Tty {
   Future<Point<int>> get cursorPosition async {
     final completer = Completer<Point<int>>();
     await Future.delayed(Duration(milliseconds: 1));
-    final sub = listen((inp) {
-      for (final data in parseStdin(encoding.decode(inp).runes.toList())) {
-        final chars = String.fromCharCodes(data);
-        if (!chars.startsWith('\x1b[')) return;
-        final seq = chars.substring(2);
-        final pos = parseCursorPosition(seq);
-        if (pos != null) {
-          completer.complete(pos);
-          return;
-        }
+    final sub = runes.listen((data) {
+      if (completer.isCompleted) return;
+      final chars = String.fromCharCodes(data);
+      if (!chars.startsWith('\x1b[')) return;
+      final seq = chars.substring(2);
+      final pos = parseCursorPosition(seq);
+      if (pos != null) {
+        if (!completer.isCompleted) completer.complete(pos);
+        return;
       }
     });
     Point<int> ret;
+    reportCursorPosition();
+    ret = await completer.future.timeout(Duration(milliseconds: 200));
+    /*
     do {
       reportCursorPosition();
       try {
@@ -112,31 +136,34 @@ abstract class Tty {
         break;
       } catch (e) {}
     } while (true);
+     */
     await sub.cancel();
     return ret;
   }
 
-  // FutureOr<Point<int>> get size;
-
   FutureOr<Point<int>> get size async {
     final completer = Completer<Point<int>>();
     await Future.delayed(Duration(milliseconds: 1));
-    final sub = listen((inp) {
-      for (final data in parseStdin(encoding.decode(inp).runes.toList())) {
-        final chars = String.fromCharCodes(data);
-        if (!chars.startsWith('\x1b[')) return;
-        final seq = chars.substring(2);
-        final pos = parseCursorPosition(seq);
-        if (pos != null) {
-          completer.complete(pos);
-          return;
-        }
+    final sub = runes.listen((data) {
+      if (completer.isCompleted) return;
+      final chars = String.fromCharCodes(data);
+      if (!chars.startsWith('\x1b[')) return;
+      final seq = chars.substring(2);
+      final pos = parseCursorPosition(seq);
+      if (pos != null) {
+        if (!completer.isCompleted) completer.complete(pos);
+        return;
       }
     });
     saveCursorPosition();
     moveToBottomRight();
     reportCursorPosition();
     Point<int> ret;
+
+    reportCursorPosition();
+    ret = await completer.future.timeout(Duration(milliseconds: 200));
+
+    /*
     do {
       reportCursorPosition();
       try {
@@ -144,6 +171,7 @@ abstract class Tty {
         break;
       } catch (e) {}
     } while (true);
+     */
     restoreCursorPosition();
     await sub.cancel();
     return ret;
@@ -181,6 +209,7 @@ const ascii0 = 48;
 const ascii9 = 57;
 const asciiSpace = 32;
 const asciiTilde = 126;
+const asciiSemicolon = 59;
 const asciiLeftSquareBracket = 91;
 
 const asciiCtrlk = 11;
@@ -190,55 +219,81 @@ List<int> parseDigits(Iterable<int> data) {
   final ret = <int>[];
 
   for (int d in data) {
-    if (d < ascii0 && d > ascii9) break;
+    if (d < ascii0 || d > ascii9) break;
     ret.add(d);
   }
 
   return ret;
 }
 
-Iterable<int> _parseStdinControlSequence(Iterable<int> startData) {
+MapEntry<Iterable<int>, bool> _parseStdinControlSequence(
+    Iterable<int> startData) {
+  final ret = <int>[];
+
+  ret.add(asciiEscape);
   var data = startData.skip(0);
-
-  if (data.length == 1) return startData;
-
   data = data.skip(1);
 
-  if (data.first != asciiLeftSquareBracket) return startData.take(2);
+  if (data.isEmpty) return MapEntry(ret, false);
 
+  if (data.first != asciiLeftSquareBracket) {
+    return MapEntry(startData.take(2), true);
+  }
+  ret.add(asciiLeftSquareBracket);
   data = data.skip(1);
+  if (data.isEmpty) return MapEntry(ret, false);
 
-  if (data.isEmpty) return data;
+  var temp = parseDigits(data);
+  ret.addAll(temp);
+  data = data.skip(temp.length);
+  if (data.isEmpty) return MapEntry(ret, false);
 
-  final ps = parseDigits(data);
+  while (data.first == asciiSemicolon) {
+    ret.add(asciiSemicolon);
+    data = data.skip(1);
+    if (data.isEmpty) return MapEntry(ret, false);
 
-  data = data.skip(ps.length);
-
-  if (data.isEmpty) return startData;
+    temp = parseDigits(data);
+    ret.addAll(temp);
+    data = data.skip(temp.length);
+    if (data.isEmpty) return MapEntry(ret, false);
+  }
 
   final d3 = data.first;
   if (d3 >= asciiA && d3 <= asciiZ) {
-    return [asciiEscape, asciiLeftSquareBracket, ...ps, d3];
+    ret.add(d3);
+    return MapEntry(ret, true);
   } else if (d3 == asciiTilde) {
-    return [asciiEscape, asciiLeftSquareBracket, ...ps, d3];
+    ret.add(d3);
+    return MapEntry(ret, true);
   }
   // TODO mouse stuff
 
-  throw UnsupportedError("Unsupported control sequence!");
+  throw UnsupportedError("Unsupported control sequence $startData!");
 }
 
-List<List<int>> parseStdin(List<int> data) {
-  final ret = <List<int>>[];
+MapEntry<List<List<int>>, List<int>> parseStdin(List<int> data) {
+  final parsed = <List<int>>[];
+  final pending = <int>[];
 
   for (int i = 0; i < data.length; i++) {
     if (data[i] != asciiEscape) {
-      ret.add([data[i]]);
+      parsed.add([data[i]]);
       continue;
     }
+
     final next = _parseStdinControlSequence(data.skip(i));
-    i += next.length;
-    ret.add(next.toList());
+
+    if (!next.value) {
+      pending.addAll(next.key);
+      break;
+    }
+
+    parsed.add(next.key.toList());
+    i += next.key.length - 1;
   }
+
+  final ret = MapEntry(parsed, pending);
 
   return ret;
 }
