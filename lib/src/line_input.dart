@@ -306,13 +306,27 @@ class MultiLineInput implements TextInput {
     }
   }
 
-  void moveBackwardWord() {
-    if (_curLineInput.canMoveBackward) {
-      _curLineInput.moveBackwardWord();
-    } else {
+  void _moveBackwardWordNextLine() {
+    do {
       _curLineNum--;
       _curLineInput.moveToEndOfLine();
       _curLineInput.moveBackwardWord();
+
+      if (_curLineInput.currentChar != null &&
+          _isAlphaNumeric(_curLineInput.currentChar)) {
+        break;
+      }
+    } while (canMoveBackward);
+  }
+
+  void moveBackwardWord() {
+    if (_curLineInput.canMoveBackward) {
+      _curLineInput.moveBackwardWord();
+      if (!_isAlphaNumeric(_curLineInput.currentChar) && canMoveBackward) {
+        _moveBackwardWordNextLine();
+      }
+    } else {
+      _moveBackwardWordNextLine();
     }
   }
 

@@ -98,7 +98,7 @@ Future<String> readMultiLineText(
         } else {
           tty.ringBell();
         }
-      } else if(seq.endsWith('H')) {
+      } else if (seq.endsWith('H')) {
         if (input.canMoveBackward) {
           input.moveToStart();
           shouldRender = true;
@@ -129,21 +129,21 @@ Future<String> readMultiLineText(
       if (data.length == 2) {
         final key = data.elementAt(1);
         if (key == asciif) {
-          if(input.canMoveForward) {
+          if (input.canMoveForward) {
             input.moveForwardWord();
             shouldRender = true;
           } else {
             tty.ringBell();
           }
         } else if (key == asciib) {
-          if(input.canMoveBackward) {
+          if (input.canMoveBackward) {
             input.moveBackwardWord();
             shouldRender = true;
           } else {
             tty.ringBell();
           }
         } else if (key == asciie) {
-          if(input.canMoveForward) {
+          if (input.canMoveForward) {
             input.moveToEndWord();
             shouldRender = true;
           } else {
@@ -194,7 +194,7 @@ Future<String> readMultiLineText(
       } else {
         tty.ringBell();
       }
-    } else if(data.first == asciiEnter) {
+    } else if (data.first == asciiEnter) {
       input.newLine();
       shouldRender = true;
     } else {

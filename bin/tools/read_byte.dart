@@ -3,7 +3,7 @@ import 'dart:io';
 main() {
   stdin.echoMode = false;
   stdin.lineMode = false;
-  while(true) {
+  while (true) {
     print(stdin.readByteSync());
   }
 }
