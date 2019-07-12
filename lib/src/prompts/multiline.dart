@@ -98,6 +98,20 @@ Future<String> readMultiLineText(
         } else {
           tty.ringBell();
         }
+      } else if(seq.endsWith('H')) {
+        if (input.canMoveBackward) {
+          input.moveToStart();
+          shouldRender = true;
+        } else {
+          tty.ringBell();
+        }
+      } else if (seq.endsWith("F")) {
+        if (input.canMoveForward) {
+          input.moveToEnd();
+          shouldRender = true;
+        } else {
+          tty.ringBell();
+        }
       } else if (seq == "2~") {
         insertMode = !insertMode;
         shouldRender = true;
