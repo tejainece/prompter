@@ -12,16 +12,16 @@ abstract class Stringer<T> {
   T to(String value);
 }
 
-Future<T> get<T>(
+Future<T> read<T>(
   Tty tty,
   Stringer<T> stringer, {
   String label = "",
   T default_,
   Validator<T> validator = noOpValidator,
   Suggester suggester, // TODO
-  LineTemplate<String> prompt = promptLineTemplate,
-  LineTemplate<String> main = mainLineTemplate,
-  LineTemplate<String> postfix = noOpTemplate,
+  LineTemplate<String> promptTemplate = promptTemplate,
+  LineTemplate<String> contentTemplate = contentTemplate,
+  LineTemplate<String> suffixTemplate = suffixTemplate,
   SuccessTemplate<String> success = successTemplate,
 }) async {
   final defaultStr = default_ != null ? stringer.from(default_) : '';
@@ -38,9 +38,9 @@ Future<T> get<T>(
     String contentStr = input.content;
     T content = stringer.to(contentStr);
     final error = validator(content);
-    final pc = prompt(label, contentStr, error);
-    final mc = main(label, contentStr, error);
-    final pfc = postfix(label, contentStr, error);
+    final pc = promptTemplate(label, contentStr, error);
+    final mc = contentTemplate(label, contentStr, error);
+    final pfc = suffixTemplate(label, contentStr, error);
     renderer.setContent([pc + mc + (insertMode ? ' ' : '') + pfc],
         cursor: Point<int>(pc.runes.length + input.colNum, 0),
         insertMode: insertMode);

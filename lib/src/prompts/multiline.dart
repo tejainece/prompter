@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:math';
-import 'dart:convert';
 
 import 'package:prompter/io.dart';
 import 'package:prompter/src/tty/tty.dart';
@@ -16,7 +15,16 @@ typedef MultiLineLineTemplate = String Function(
 
 String promptMultiLineTemplate(String label, _) => '$label: ';
 
-String multiLineLineTemplate(
+String multiLinePrefixTemplate(
+    int numLines, int lineNum, String line, bool hasCursor) {
+  var ln = lineNum.toString();
+  return '\x1b[7m ' +
+      (' ' * (numLines.toString().length - ln.length)) +
+      ln +
+      '\x1b[m';
+}
+
+String multiLineContentTemplate(
     int numLines, int lineNum, String line, bool hasCursor) {
   return line;
 }
@@ -27,8 +35,9 @@ Future<String> readMultiLineText(
   String label = "",
   String default_ = "",
   Suggester suggester, // TODO
-  PromptMultiLineTemplate prompt = promptMultiLineTemplate,
-  MultiLineLineTemplate lineTemplate = multiLineLineTemplate,
+  PromptMultiLineTemplate promptTemplate = promptMultiLineTemplate,
+  MultiLineLineTemplate linePrefixTemplate = multiLinePrefixTemplate,
+  MultiLineLineTemplate lineTemplate = multiLineContentTemplate,
   SuccessTemplate<String> success = successTemplate,
 }) async {
   final mode = Mode(tty);
@@ -41,17 +50,21 @@ Future<String> readMultiLineText(
 
   final render = () async {
     final lines = input.lines;
-    final pc = prompt(label, lines);
-    for (int i = 0; i < lines.length; i++) {
-      lines[i] = lineTemplate(lines.length, i, lines[i], false);
-    }
+    final pc = promptTemplate(label, lines);
 
     final pos = Point<int>(input.colNum, input.lineNum);
+    int cursorCol = pos.x;
+
+    for (int i = 0; i < lines.length; i++) {
+      final prefix = linePrefixTemplate(lines.length, i + 1, lines[i], false);
+      if (i == pos.y) cursorCol += prefix.runes.length;
+      lines[i] = prefix + lineTemplate(lines.length, i + 1, lines[i], false);
+    }
 
     renderer.setContent([
       pc + ' $pos',
       ...(lines.isNotEmpty ? lines : [' '])
-    ], cursor: Point<int>(pos.x, 1 + pos.y), insertMode: insertMode);
+    ], cursor: Point<int>(cursorCol, 1 + pos.y), insertMode: insertMode);
 
     await renderer.render();
   };

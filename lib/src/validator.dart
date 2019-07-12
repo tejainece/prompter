@@ -14,11 +14,11 @@ String noOpValidator(_) => null;
 
 typedef LineTemplate<T> = String Function(String label, T input, String error);
 
-String promptLineTemplate(String label, _1, _2) => '$label: ';
+String promptTemplate(String label, _1, _2) => '$label: ';
 
-String mainLineTemplate<T>(_, input, _2) => '$input';
+String contentTemplate<T>(_, input, _2) => '$input';
 
-String noOpTemplate(_, _1, [_2]) => '';
+String suffixTemplate(_, _1, [_2]) => '';
 
 typedef SuccessTemplate<T> = String Function(String label, T input);
 

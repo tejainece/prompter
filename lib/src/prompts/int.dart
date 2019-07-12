@@ -29,21 +29,21 @@ Validator<int> intValidator({int min, int max}) {
   };
 }
 
-Future<int> getInt(Tty tty,
+Future<int> readInt(Tty tty,
     {String label = "",
     int default_,
     Validator<int> validator,
-    LineTemplate<String> prompt = promptLineTemplate,
-    LineTemplate<String> main = mainLineTemplate,
-    LineTemplate<String> postfix = noOpTemplate,
+    LineTemplate<String> promptTemplate = promptTemplate,
+    LineTemplate<String> contentTemplate = contentTemplate,
+    LineTemplate<String> suffixTemplate = suffixTemplate,
     SuccessTemplate<String> success = successTemplate}) async {
   if (validator == null) validator = intValidator();
-  return get(tty, IntStringer.instance,
+  return read(tty, IntStringer.instance,
       label: label,
       default_: default_,
       validator: validator,
-      prompt: prompt,
-      main: main,
-      postfix: postfix,
+      promptTemplate: promptTemplate,
+      contentTemplate: contentTemplate,
+      suffixTemplate: suffixTemplate,
       success: success);
 }

@@ -9,62 +9,62 @@ export 'src/tty/io.dart';
 
 final stdio = Stdio();
 
-Future<String> getString(
+Future<String> readString(
         {String label = "",
         String default_ = "",
         Validator<String> validator = noOpValidator,
         Suggester suggester,
-        LineTemplate<String> prompt = promptLineTemplate,
-        LineTemplate<String> main = mainLineTemplate,
-        LineTemplate<String> postfix = noOpTemplate,
+        LineTemplate<String> promptTemplate = promptTemplate,
+        LineTemplate<String> contentTemplate = contentTemplate,
+        LineTemplate<String> suffixTemplate = suffixTemplate,
         SuccessTemplate<String> success = successTemplate}) =>
-    prompter.getString(
+    prompter.readString(
       stdio,
       label: label,
       default_: default_,
       validator: validator,
       suggester: suggester,
-      prompt: prompt,
-      main: main,
-      postfix: postfix,
+      promptTemplate: promptTemplate,
+      contentTemplate: contentTemplate,
+      suffixTemplate: suffixTemplate,
       success: success,
     );
 
-Future<int> getInt(
+Future<int> readInt(
         {String label = "",
         int default_,
         Validator<int> validator,
-        LineTemplate<String> prompt = promptLineTemplate,
-        LineTemplate<String> main = mainLineTemplate,
-        LineTemplate<String> postfix = noOpTemplate,
+        LineTemplate<String> promptTemplate = promptTemplate,
+        LineTemplate<String> contentTemplate = contentTemplate,
+        LineTemplate<String> suffixTemplate = suffixTemplate,
         SuccessTemplate<String> success = successTemplate}) =>
-    prompter.getInt(
+    prompter.readInt(
       stdio,
       label: label,
       default_: default_,
       validator: validator,
-      prompt: prompt,
-      main: main,
-      postfix: postfix,
+      promptTemplate: promptTemplate,
+      contentTemplate: contentTemplate,
+      suffixTemplate: suffixTemplate,
       success: success,
     );
 
-Future<double> getDouble(
+Future<double> readDouble(
         {String label = "",
         double default_,
         Validator<double> validator,
-        LineTemplate<String> prompt = promptLineTemplate,
-        LineTemplate<String> main = mainLineTemplate,
-        LineTemplate<String> postfix = noOpTemplate,
+        LineTemplate<String> promptTemplate = promptTemplate,
+        LineTemplate<String> contentTemplate = contentTemplate,
+        LineTemplate<String> suffixTemplate = suffixTemplate,
         SuccessTemplate<String> success = successTemplate}) =>
-    prompter.getDouble(
+    prompter.readDouble(
       stdio,
       label: label,
       default_: default_,
       validator: validator,
-      prompt: prompt,
-      main: main,
-      postfix: postfix,
+      promptTemplate: promptTemplate,
+      contentTemplate: contentTemplate,
+      suffixTemplate: suffixTemplate,
       success: success,
     );
 
@@ -102,14 +102,16 @@ Future<String> readMultiLineText({
   String label = "",
   String default_ = "",
   Suggester suggester, // TODO
-  PromptMultiLineTemplate prompt = promptMultiLineTemplate,
-  MultiLineLineTemplate lineTemplate = multiLineLineTemplate,
+  PromptMultiLineTemplate promptTemplate = promptMultiLineTemplate,
+  MultiLineLineTemplate linePrefixTemplate = multiLinePrefixTemplate,
+  MultiLineLineTemplate lineTemplate = multiLineContentTemplate,
   SuccessTemplate<String> success = successTemplate,
 }) =>
     prompter.readMultiLineText(stdio,
         label: label,
         default_: default_,
         suggester: suggester,
-        prompt: prompt,
+        promptTemplate: promptTemplate,
+        linePrefixTemplate: linePrefixTemplate,
         lineTemplate: lineTemplate,
         success: success);

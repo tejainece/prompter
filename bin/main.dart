@@ -64,22 +64,22 @@ String postfix(String label, input, String error) {
 main(List<String> arguments) async {
   stdinBytes;
 
-  final name = await getString(
+  final name = await readString(
       label: "\u{1F464} Username",
       default_: "Teja",
-      prompt: prompt,
+      promptTemplate: prompt,
       validator: usernameValidator,
-      postfix: postfix,
-      success: noOpTemplate);
-  final age = await getInt(
+      suffixTemplate: postfix,
+      success: suffixTemplate);
+  final age = await readInt(
     label: 'Age',
-    prompt: prompt,
-    postfix: postfix,
+    promptTemplate: prompt,
+    suffixTemplate: postfix,
   );
-  final weight = await getDouble(
+  final weight = await readDouble(
     label: 'Weight',
-    prompt: prompt,
-    postfix: postfix,
+    promptTemplate: prompt,
+    suffixTemplate: postfix,
   );
 
   final person = Person(username: name, age: age, weight: weight);

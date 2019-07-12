@@ -29,21 +29,21 @@ Validator<double> doubleValidator({double min, double max}) {
   };
 }
 
-Future<double> getDouble(Tty tty,
+Future<double> readDouble(Tty tty,
     {String label = "",
     double default_,
     Validator<double> validator,
-    LineTemplate<String> prompt = promptLineTemplate,
-    LineTemplate<String> main = mainLineTemplate,
-    LineTemplate<String> postfix = noOpTemplate,
+    LineTemplate<String> promptTemplate = promptTemplate,
+    LineTemplate<String> contentTemplate = contentTemplate,
+    LineTemplate<String> suffixTemplate = suffixTemplate,
     SuccessTemplate<String> success = successTemplate}) async {
   if (validator == null) validator = doubleValidator();
-  return get(tty, DoubleStringer.instance,
+  return read(tty, DoubleStringer.instance,
       label: label,
       default_: default_,
       validator: validator,
-      prompt: prompt,
-      main: main,
-      postfix: postfix,
+      promptTemplate: promptTemplate,
+      contentTemplate: contentTemplate,
+      suffixTemplate: suffixTemplate,
       success: success);
 }
