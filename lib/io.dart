@@ -1,5 +1,3 @@
-import 'package:meta/meta.dart';
-
 import 'prompter.dart';
 import 'prompter.dart' as prompter;
 import 'src/tty/io.dart';
@@ -81,7 +79,20 @@ Future<String> select(String name, List<String> options,
         itemTemplate: itemTemplate,
         success: success);
 
-// TODO selectIndex
+Future<int> selectIndex(String name, List<String> options,
+        {String question,
+        int selected = 0,
+        int itemsPerPage = 5,
+        SelectPromptTemplate promptTemplate = selectPromptTemplate,
+        SelectItemTemplate itemTemplate = selectItemTemplate,
+        SuccessTemplate<String> success = successTemplate}) =>
+    prompter.selectIndex(stdio, name, options,
+        question: question,
+        selected: selected,
+        itemsPerPage: itemsPerPage,
+        promptTemplate: promptTemplate,
+        itemTemplate: itemTemplate,
+        success: success);
 
 Future<List<String>> multiSelect(String name, List<String> options,
         {String question,
@@ -96,7 +107,20 @@ Future<List<String>> multiSelect(String name, List<String> options,
         itemTemplate: itemTemplate,
         success: success);
 
-// TODO multiSelectIndex
+Future<Set<int>> multiSelectIndex(String name, List<String> options,
+        {String question,
+        Set<int> selected,
+        int itemsPerPage = 5,
+        MultiSelectPromptTemplate promptTemplate = multiSelectPromptTemplate,
+        MultiSelectItemTemplate itemTemplate = multiSelectItemTemplate,
+        SuccessTemplate<String> success = successTemplate}) =>
+    prompter.multiSelectIndex(stdio, name, options,
+        question: question,
+        selected: selected,
+        itemsPerPage: itemsPerPage,
+        promptTemplate: promptTemplate,
+        itemTemplate: itemTemplate,
+        success: success);
 
 Future<String> readMultiLineText({
   String label = "",
@@ -115,3 +139,22 @@ Future<String> readMultiLineText({
         linePrefixTemplate: linePrefixTemplate,
         lineTemplate: lineTemplate,
         success: success);
+
+Future<bool> readYesOrNo(String name,
+        {String question,
+        String yes = 'y',
+        String no = 'n',
+        bool default_ = false,
+        bool waitForEnter = false,
+        BoolPromptTemplate promptTemplate = boolPromptTemplate,
+        // BoolContentTemplate contentTemplate = boolContentTemplate,
+        BoolSuccessTemplate successTemplate = boolSuccessTemplate}) =>
+    prompter.readYesOrNo(stdio, name,
+        question: question,
+        yes: yes,
+        no: no,
+        default_: default_,
+        waitForEnter: waitForEnter,
+        promptTemplate: promptTemplate,
+        // contentTemplate: contentTemplate,
+        successTemplate: successTemplate);

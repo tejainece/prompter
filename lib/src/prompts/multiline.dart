@@ -71,8 +71,6 @@ Future<String> readMultiLineText(
 
   await render();
 
-  await renderer.init();
-
   final completer = Completer();
 
   int upDownCol;

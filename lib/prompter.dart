@@ -6,6 +6,7 @@ export 'src/validator.dart';
 export 'src/prompts/double.dart';
 export 'src/prompts/int.dart';
 export 'src/prompts/string.dart';
+export 'src/prompts/yes_or_no.dart';
 
 export 'src/prompts/multiline.dart';
 

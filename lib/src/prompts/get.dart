@@ -50,8 +50,6 @@ Future<T> read<T>(
 
   await render();
 
-  await renderer.init();
-
   final completer = Completer();
 
   final sub = tty.runes.listen((List<int> data) async {

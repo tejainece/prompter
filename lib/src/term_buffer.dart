@@ -27,10 +27,6 @@ class TermBuffer {
 
   Completer _rendering;
 
-  Future<void> init() async {
-    // _startingPos = await cursorPosition;
-  }
-
   Future<void> render() async {
     while (_rendering != null) {
       final future = _rendering.future;

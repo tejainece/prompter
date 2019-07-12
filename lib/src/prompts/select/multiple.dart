@@ -104,8 +104,6 @@ Future<Set<int>> multiSelectIndex(Tty tty, String name, List<String> options,
     await buffer.render();
   };
 
-  await buffer.init();
-
   await render();
 
   final completer = Completer();
