@@ -1,4 +1,4 @@
-export 'src/line_input.dart';
+export 'src/text_input/text_input.dart';
 export 'src/term_buffer.dart';
 
 export 'src/validator.dart';

@@ -121,7 +121,7 @@ abstract class Tty {
 
   Future<Point<int>> get cursorPosition async {
     final completer = Completer<Point<int>>();
-    await Future.delayed(Duration(milliseconds: 1));
+    await Future.delayed(Duration(milliseconds: 5));
     final sub = runes.listen((data) {
       if (completer.isCompleted) return;
       final chars = String.fromCharCodes(data);
@@ -151,7 +151,7 @@ abstract class Tty {
 
   FutureOr<Point<int>> get size async {
     final completer = Completer<Point<int>>();
-    await Future.delayed(Duration(milliseconds: 1));
+    await Future.delayed(Duration(milliseconds: 5));
     final sub = runes.listen((data) {
       if (completer.isCompleted) return;
       final chars = String.fromCharCodes(data);

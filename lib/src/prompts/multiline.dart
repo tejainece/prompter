@@ -62,10 +62,13 @@ Future<String> readMultiLineText(
 
   final completer = Completer();
 
+  int upDownCol;
+
   final sub = tty.runes.listen((List<int> data) async {
     if (completer.isCompleted) return;
 
     bool shouldRender = false;
+    bool isLineNav = false;
 
     final chars = String.fromCharCodes(data);
     if (chars.startsWith('\x1b[')) {
@@ -122,6 +125,24 @@ Future<String> readMultiLineText(
         } else {
           tty.ringBell();
         }
+      } else if (seq == "A") {
+        if (input.canMoveUp) {
+          if (upDownCol == null) upDownCol = input.colNum;
+          input.moveUp(pos: upDownCol);
+          isLineNav = true;
+          shouldRender = true;
+        } else {
+          tty.ringBell();
+        }
+      } else if (seq == "B") {
+        if (input.canMoveDown) {
+          if (upDownCol == null) upDownCol = input.colNum;
+          input.moveDown(pos: upDownCol);
+          isLineNav = true;
+          shouldRender = true;
+        } else {
+          tty.ringBell();
+        }
       } else {
         // stdout.write(data);
       }
@@ -144,7 +165,7 @@ Future<String> readMultiLineText(
           }
         } else if (key == asciie) {
           if (input.canMoveForward) {
-            input.moveToEndWord();
+            input.moveToEndOfWord();
             shouldRender = true;
           } else {
             tty.ringBell();
@@ -210,7 +231,10 @@ Future<String> readMultiLineText(
       // stdout.write(input.content);
     }
 
-    if (shouldRender) await render();
+    if (shouldRender) {
+      await render();
+      if (!isLineNav) upDownCol = null;
+    }
   });
 
   await completer.future;

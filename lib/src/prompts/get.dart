@@ -113,7 +113,7 @@ Future<T> get<T>(
           input.moveBackwardWord();
           shouldRender = true;
         } else if (key == asciie) {
-          input.moveToEndWord();
+          input.moveToEndOfWord();
           shouldRender = true;
         } else if (key == asciid) {
           input.deleteLine();

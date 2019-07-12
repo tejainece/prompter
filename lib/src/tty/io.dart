@@ -42,12 +42,4 @@ class Stdio extends Tty {
 
 Stream<List<int>> _stdin;
 
-class TimedBytes {
-  final DateTime time;
-
-  final List<int> data;
-
-  TimedBytes(this.time, this.data);
-}
-
 Stream<List<int>> get stdinBytes => _stdin ??= io.stdin.asBroadcastStream();
