@@ -5,52 +5,56 @@ import 'package:prompter/src/tty/tty.dart';
 import '../line_mode.dart';
 import '../pager.dart';
 
+typedef MultiSelectPromptTemplate = String Function(
+    String label, List<String> selected);
+
 typedef MultiSelectItemTemplate = String Function(
     int index, String option, bool selected, bool active);
 
-String defaultMultiSelectItemTemplate(
+String multiSelectPromptTemplate(String label, _) => '$label: ';
+
+String multiSelectItemTemplate(
     int index, String option, bool selected, bool active) {
   final sb = StringBuffer();
 
   if (active) {
-    sb.write('>');
-  } else {
-    sb.write(' ');
+    sb.write('\x1b[7m');
   }
 
   sb.write(' ');
 
   if (selected) {
-    // TODO
     sb.write('[X] $option');
   } else {
     sb.write('[ ] $option');
   }
 
+  sb.write('\x1b[m');
+
   return sb.toString();
 }
 
-Future<List<String>> multiSelect(Tty tty, List<String> options,
+Future<List<String>> multiSelect(Tty tty, String name, List<String> options,
     {String question,
-    @required String name,
     Set<int> selected,
-    MultiSelectItemTemplate itemTemplate = defaultMultiSelectItemTemplate,
+    MultiSelectPromptTemplate promptTemplate = multiSelectPromptTemplate,
+    MultiSelectItemTemplate itemTemplate = multiSelectItemTemplate,
     SuccessTemplate<String> success = successTemplate}) async {
-  final index = await multiSelectIndex(tty, options,
+  final index = await multiSelectIndex(tty, name, options,
       question: question,
-      name: name,
       selected: selected,
+      promptTemplate: promptTemplate,
       itemTemplate: itemTemplate,
       success: success);
   return index.map((i) => options[i]).toList();
 }
 
-Future<Set<int>> multiSelectIndex(Tty tty, List<String> options,
+Future<Set<int>> multiSelectIndex(Tty tty, String name, List<String> options,
     {String question,
-    @required String name,
     Set<int> selected,
     int itemsPerPage = 5,
-    MultiSelectItemTemplate itemTemplate = defaultMultiSelectItemTemplate,
+    MultiSelectPromptTemplate promptTemplate = multiSelectPromptTemplate,
+    MultiSelectItemTemplate itemTemplate = multiSelectItemTemplate,
     SuccessTemplate<String> success = successTemplate}) async {
   if (selected != null) {
     selected = selected.toSet();
@@ -68,7 +72,8 @@ Future<Set<int>> multiSelectIndex(Tty tty, List<String> options,
 
   final render = () async {
     final lines = <String>[];
-    lines.add(question); // TODO prompt template
+    lines.add(
+        promptTemplate(question, selected.map((i) => options[i]).toList()));
     for (int i = pager.startIndexOfCurrentPage;
         i <= pager.lastIndexOfCurrentPage;
         i++) {

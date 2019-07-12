@@ -97,13 +97,13 @@ class MultiLineInput implements TextInput {
 
   void moveToEndOfWord() {
     if (_curLineInput.canMoveForward) {
-      if(_curLineInput.colNum < _curLineInput.length - 1) {
+      if (_curLineInput.colNum < _curLineInput.length - 1) {
         _curLineInput.moveToEndOfWord();
         if (_curLineInput.colNum == _curLineInput.length && canMoveForward) {
           _moveEndOfWordNextLine();
         }
       } else {
-        if(canMoveDown) {
+        if (canMoveDown) {
           _moveEndOfWordNextLine();
         }
       }

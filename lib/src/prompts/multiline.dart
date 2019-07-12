@@ -62,7 +62,7 @@ Future<String> readMultiLineText(
     }
 
     renderer.setContent([
-      pc + ' $pos',
+      pc,
       ...(lines.isNotEmpty ? lines : [' '])
     ], cursor: Point<int>(cursorCol, 1 + pos.y), insertMode: insertMode);
 

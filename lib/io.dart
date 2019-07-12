@@ -68,31 +68,31 @@ Future<double> readDouble(
       success: success,
     );
 
-Future<String> select(List<String> options,
+Future<String> select(String name, List<String> options,
         {String question,
-        @required String name,
         int selected = 0,
-        SelectItemTemplate itemTemplate = defaultSelectItemTemplate,
+        SelectPromptTemplate promptTemplate = prompter.selectPromptTemplate,
+        SelectItemTemplate itemTemplate = selectItemTemplate,
         SuccessTemplate<String> success = successTemplate}) =>
-    prompter.select(stdio, options,
+    prompter.select(stdio, name, options,
         question: question,
-        name: name,
         selected: selected,
+        promptTemplate: promptTemplate,
         itemTemplate: itemTemplate,
         success: success);
 
 // TODO selectIndex
 
-Future<List<String>> multiSelect(List<String> options,
+Future<List<String>> multiSelect(String name, List<String> options,
         {String question,
-        @required String name,
         Set<int> selected,
-        MultiSelectItemTemplate itemTemplate = defaultMultiSelectItemTemplate,
+        MultiSelectPromptTemplate promptTemplate = multiSelectPromptTemplate,
+        MultiSelectItemTemplate itemTemplate = multiSelectItemTemplate,
         SuccessTemplate<String> success = successTemplate}) =>
-    prompter.multiSelect(stdio, options,
+    prompter.multiSelect(stdio, name, options,
         question: question,
-        name: name,
         selected: selected,
+        promptTemplate: promptTemplate,
         itemTemplate: itemTemplate,
         success: success);
 

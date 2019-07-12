@@ -5,39 +5,42 @@ import '../line_mode.dart';
 import '../pager.dart';
 import 'package:prompter/src/tty/tty.dart';
 
+typedef SelectPromptTemplate = String Function(String label, String selected);
+
 typedef SelectItemTemplate = String Function(
     int index, String option, bool selected);
 
-String defaultSelectItemTemplate(int index, String option, bool selected) {
+String selectPromptTemplate(String label, _) => '$label: ';
+
+String selectItemTemplate(int index, String option, bool selected) {
   if (selected) {
-    // TODO
-    return '> $option';
+    return '\x1b[7m' + '> $option' + '\x1b[m';
   } else {
     return '  $option';
   }
 }
 
-Future<String> select(Tty tty, List<String> options,
+Future<String> select(Tty tty, String name, List<String> options,
     {String question,
-    @required String name,
     int selected = 0,
-    SelectItemTemplate itemTemplate = defaultSelectItemTemplate,
+    SelectPromptTemplate promptTemplate = selectPromptTemplate,
+    SelectItemTemplate itemTemplate = selectItemTemplate,
     SuccessTemplate<String> success = successTemplate}) async {
-  final index = await selectIndex(tty, options,
+  final index = await selectIndex(tty, name, options,
       question: question,
-      name: name,
       selected: selected,
+      promptTemplate: promptTemplate,
       itemTemplate: itemTemplate,
       success: success);
   return options[index];
 }
 
-Future<int> selectIndex(Tty tty, List<String> options,
+Future<int> selectIndex(Tty tty, String name, List<String> options,
     {String question,
-    @required String name,
     int selected = 0,
     int itemsPerPage = 5,
-    SelectItemTemplate itemTemplate = defaultSelectItemTemplate,
+    SelectPromptTemplate promptTemplate = selectPromptTemplate,
+    SelectItemTemplate itemTemplate = selectItemTemplate,
     SuccessTemplate<String> success = successTemplate}) async {
   question ??= name;
   final pager = Pager(options, itemsPerPage: itemsPerPage);
@@ -49,7 +52,7 @@ Future<int> selectIndex(Tty tty, List<String> options,
 
   final render = () async {
     final lines = <String>[];
-    lines.add(question); // TODO prompt template
+    lines.add(promptTemplate(question, options[selected]));
     for (int i = pager.startIndexOfCurrentPage;
         i <= pager.lastIndexOfCurrentPage;
         i++) {
